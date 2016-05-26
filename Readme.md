@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
 
 * Студент: [Мария Извекова](https://up.htmlacademy.ru/javascript/5/user/199714).
-* Наставник: `Неизвестно`.
+* Наставник: `Игорь Кузнецов`.
 
 ---
 
