@@ -112,8 +112,10 @@
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
 
+
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
+
       this._ctx.strokeRect(
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
@@ -127,6 +129,33 @@
       // некорректно сработает даже очистка холста или нужно будет использовать
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
+
+      this._ctx.beginPath();
+      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      this._ctx.moveTo(0, 0);
+      this._ctx.lineTo(this._container.width, 0);
+      this._ctx.lineTo(this._container.width, this._container.height);
+      this._ctx.lineTo(0, this._container.height);
+      this._ctx.lineTo(0, 0);
+      this._ctx.moveTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
+          this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
+      this._ctx.lineTo(this._container.width / 2 + this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2,
+          this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
+      this._ctx.lineTo(this._container.width / 2 + this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2,
+          this._container.height / 2 + this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2);
+      this._ctx.lineTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
+          this._container.height / 2 + this._resizeConstraint.side / 2 - this._ctx.lineWidth / 2);
+      this._ctx.lineTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
+          this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
+      this._ctx.closePath();
+      this._ctx.fill('evenodd');
+
+      this._ctx.font = '20px Tahoma';
+      this._ctx.fillStyle = 'white';
+      this._ctx.textAlign="center";
+      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight ,
+          this._container.width / 2, this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth - 10);
+
     },
 
     /**
