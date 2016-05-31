@@ -89,15 +89,37 @@
       // чего-либо с другой обводкой.
 
       // Толщина линии.
-      this._ctx.lineWidth = 6;
+      //this._ctx.lineWidth = 6;
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      //this._ctx.strokeStyle = '#ffe753';
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
+      //this._ctx.setLineDash([15, 10]);
       // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
-
+      //this._ctx.lineDashOffset = 7;
+      var getFrame = function() {
+      var canvasElement = document.createElement('canvas');
+      canvasElement.setAttribute('width', 450);
+      canvasElement.setAttribute('height', 450);
+      var ctx = canvasElement.getContext('2d');
+      var x = 30;
+      var y = 20;
+      var r = 2;
+      while (y < 450) {
+          while (x < 450) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#ffe753';
+            ctx.closePath();
+            x += 8;
+        }
+        y += 8;
+        x = 30;
+    }
+    ctx.clearRect(33, 23, 407, 417);
+    return canvasElement;
+    };
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
       this._ctx.save();
@@ -110,17 +132,18 @@
       // Отрисовка изображения на холсте. Параметры задают изображение, которое
       // нужно отрисовать и координаты его верхнего левого угла.
       // Координаты задаются от центра холста.
+
       this._ctx.drawImage(this._image, displX, displY);
-
-
+      document.body.appendChild(getFrame());
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
 
-      this._ctx.strokeRect(
+
+      /*this._ctx.strokeRect(
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          this._resizeConstraint.side - this._ctx.lineWidth / 2); */
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -130,7 +153,7 @@
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
 
-      this._ctx.beginPath();
+      /*this._ctx.beginPath();
       this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       this._ctx.moveTo(0, 0);
       this._ctx.lineTo(this._container.width, 0);
@@ -148,12 +171,12 @@
       this._ctx.lineTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
           this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
       this._ctx.closePath();
-      this._ctx.fill('evenodd');
+      this._ctx.fill('evenodd'); */
 
       this._ctx.font = '20px Tahoma';
       this._ctx.fillStyle = 'white';
-      this._ctx.textAlign="center";
-      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight ,
+      this._ctx.textAlign = 'center';
+      this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight,
           this._container.width / 2, this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth - 10);
 
     },
