@@ -71,6 +71,13 @@
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
+  var fromLeft = document.querySelector('#resize-x');
+  fromLeft.min = 0;
+  var fromTop = document.querySelector('#resize-y');
+  fromTop.min = 0;
+  var sizeSide = document.querySelector('#resize-size');
+  sizeSide.min = 0;
+
   function resizeFormIsValid() {
     return true;
   }
@@ -86,6 +93,7 @@
    * @type {HTMLFormElement}
    */
   var resizeForm = document.forms['upload-resize'];
+
 
   /**
    * Форма добавления фильтра.
@@ -161,7 +169,6 @@
 
           hideMessage();
         };
-
         fileReader.readAsDataURL(element.files[0]);
       } else {
         // Показ сообщения об ошибке, если загружаемый файл, не является
@@ -193,7 +200,6 @@
    */
   resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
-
     if (resizeFormIsValid()) {
       filterImage.src = currentResizer.exportImage().src;
 
