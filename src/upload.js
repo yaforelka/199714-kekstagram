@@ -71,13 +71,6 @@
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
-  var fromLeft = document.querySelector('#resize-x');
-  fromLeft.min = 0;
-  var fromTop = document.querySelector('#resize-y');
-  fromTop.min = 0;
-  var sizeSide = document.querySelector('#resize-size');
-  sizeSide.min = 0;
-
   function resizeFormIsValid() {
     return true;
   }
@@ -162,6 +155,65 @@
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
+
+          var originalWidth = currentResizer._image.naturalWidth;
+          var originalHeight = currentResizer._image.naturalHeight;
+          var fromLeft = document.querySelector('#resize-x');
+          fromLeft.min = 0;
+          var fromTop = document.querySelector('#resize-y');
+          fromTop.min = 0;
+          var sizeSide = document.querySelector('#resize-size');
+          sizeSide.min = 0;
+          var setSideConstrant = function(sideField, leftField, topField) {
+            sideField = Math.min(originalWidth - leftField, originalHeight - topField);
+            if (sideField >= 0) {
+              sizeSide.max = sideField;
+            } else {
+              sizeSide.max = 0;
+            }
+          };
+          var setLeftConstraint = function(leftField, side) {
+            leftField = originalWidth - side;
+            if (leftField >= 0) {
+              fromLeft.max = leftField;
+            } else {
+              fromLeft.max = 0;
+            }
+          };
+          var setTopConstraint = function(topField, side) {
+            topField = originalHeight - side;
+            if (topField >= 0) {
+              fromTop.max = topField;
+            } else {
+              fromTop.max = 0;
+            }
+          };
+          var checkValidity = function() {
+            if (fromLeft.validity && fromTop.validity && sizeSide.validity) {
+              resizeFormIsValid();
+            } else {
+              var buttonSubmit = document.querySelector('#resize-fwd');
+              buttonSubmit.setAttribute('disabled', 'disabled');
+              buttonSubmit.style.background = '#505050';
+            }
+          };
+          fromLeft.oninput = function() {
+            setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+            checkValidity();
+          };
+          fromTop.oninput = function() {
+            setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+            checkValidity();
+          };
+          sizeSide.oninput = function() {
+            setLeftConstraint(fromLeft, sizeSide.value);
+            setTopConstraint(fromTop, sizeSide.value);
+            checkValidity();
+          };
+          /*setLeftConstraint(fromLeft, sizeSide.value);
+          setTopConstraint(fromTop, sizeSide.value);
+          setSideConstrant(sizeSide, fromLeft.value, fromTop.value);*/
+
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
