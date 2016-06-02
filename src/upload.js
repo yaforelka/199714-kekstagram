@@ -105,8 +105,11 @@
       setTopConstraint(fromTop, sizeSide.value);
     };
     setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
-    var validity = fromLeft.validity && fromTop.validity && sizeSide.validity;
-    if (validity) {
+    var checkValidity = function(leftField, topField, sideField) {
+      return leftField.validity && topField.validity && sideField.validity;
+    };
+    var formValidity = checkValidity(fromLeft, fromTop, sizeSide);
+    if (formValidity) {
       return true;
     } else {
       return false;
@@ -193,15 +196,15 @@
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
-          resizeFormIsValid();
-          if (resizeFormIsValid() === 'false') {
+          var invalidButton = function() {
             var buttonSubmit = document.querySelector('#resize-fwd');
             buttonSubmit.setAttribute('disabled', 'disabled');
             buttonSubmit.style.background = '#505050';
+          };
+          if (resizeFormIsValid() === false) {
+            invalidButton();
           }
-          /*setLeftConstraint(fromLeft, sizeSide.value);
-          setTopConstraint(fromTop, sizeSide.value);
-          setSideConstrant(sizeSide, fromLeft.value, fromTop.value);*/
+
 
           uploadMessage.classList.add('invisible');
 
