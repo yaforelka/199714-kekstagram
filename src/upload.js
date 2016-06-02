@@ -72,7 +72,45 @@
    * @return {boolean}
    */
   function resizeFormIsValid() {
-    return true;
+    var originalWidth = currentResizer._image.naturalWidth;
+    var originalHeight = currentResizer._image.naturalHeight;
+    var fromLeft = document.querySelector('#resize-x');
+    fromLeft.min = 0;
+    fromLeft.value = 0;
+    var fromTop = document.querySelector('#resize-y');
+    fromTop.min = 0;
+    fromTop.value = 0;
+    var sizeSide = document.querySelector('#resize-size');
+    sizeSide.min = 0;
+    var setSideConstrant = function(sideField, leftField, topField) {
+      sideField = Math.min(originalWidth - leftField, originalHeight - topField);
+      sizeSide.max = sideField >= 0 ? sideField : 0;
+    };
+    var setLeftConstraint = function(leftField, side) {
+      leftField = originalWidth - side;
+      fromLeft.max = leftField >= 0 ? leftField : 0;
+    };
+    var setTopConstraint = function(topField, side) {
+      topField = originalHeight - side;
+      fromTop.max = topField >= 0 ? topField : 0;
+    };
+    fromLeft.oninput = function() {
+      setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+    };
+    fromTop.oninput = function() {
+      setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+    };
+    sizeSide.oninput = function() {
+      setLeftConstraint(fromLeft, sizeSide.value);
+      setTopConstraint(fromTop, sizeSide.value);
+    };
+    setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+    var validity = fromLeft.validity && fromTop.validity && sizeSide.validity;
+    if (validity) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -155,61 +193,12 @@
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
-
-          var originalWidth = currentResizer._image.naturalWidth;
-          var originalHeight = currentResizer._image.naturalHeight;
-          var fromLeft = document.querySelector('#resize-x');
-          fromLeft.min = 0;
-          var fromTop = document.querySelector('#resize-y');
-          fromTop.min = 0;
-          var sizeSide = document.querySelector('#resize-size');
-          sizeSide.min = 0;
-          var setSideConstrant = function(sideField, leftField, topField) {
-            sideField = Math.min(originalWidth - leftField, originalHeight - topField);
-            if (sideField >= 0) {
-              sizeSide.max = sideField;
-            } else {
-              sizeSide.max = 0;
-            }
-          };
-          var setLeftConstraint = function(leftField, side) {
-            leftField = originalWidth - side;
-            if (leftField >= 0) {
-              fromLeft.max = leftField;
-            } else {
-              fromLeft.max = 0;
-            }
-          };
-          var setTopConstraint = function(topField, side) {
-            topField = originalHeight - side;
-            if (topField >= 0) {
-              fromTop.max = topField;
-            } else {
-              fromTop.max = 0;
-            }
-          };
-          var checkValidity = function() {
-            if (fromLeft.validity && fromTop.validity && sizeSide.validity) {
-              resizeFormIsValid();
-            } else {
-              var buttonSubmit = document.querySelector('#resize-fwd');
-              buttonSubmit.setAttribute('disabled', 'disabled');
-              buttonSubmit.style.background = '#505050';
-            }
-          };
-          fromLeft.oninput = function() {
-            setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
-            checkValidity();
-          };
-          fromTop.oninput = function() {
-            setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
-            checkValidity();
-          };
-          sizeSide.oninput = function() {
-            setLeftConstraint(fromLeft, sizeSide.value);
-            setTopConstraint(fromTop, sizeSide.value);
-            checkValidity();
-          };
+          resizeFormIsValid();
+          if (resizeFormIsValid() === 'false') {
+            var buttonSubmit = document.querySelector('#resize-fwd');
+            buttonSubmit.setAttribute('disabled', 'disabled');
+            buttonSubmit.style.background = '#505050';
+          }
           /*setLeftConstraint(fromLeft, sizeSide.value);
           setTopConstraint(fromTop, sizeSide.value);
           setSideConstrant(sizeSide, fromLeft.value, fromTop.value);*/
