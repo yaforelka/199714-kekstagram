@@ -71,14 +71,15 @@
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
+  var fromLeft = document.querySelector('#resize-x');
+  var fromTop = document.querySelector('#resize-y');
+  var sizeSide = document.querySelector('#resize-size');
+  var buttonSubmit = document.querySelector('#resize-fwd');
   function resizeFormIsValid() {
     var originalWidth = currentResizer._image.naturalWidth;
     var originalHeight = currentResizer._image.naturalHeight;
-    var fromLeft = document.querySelector('#resize-x');
     fromLeft.min = 0;
-    var fromTop = document.querySelector('#resize-y');
     fromTop.min = 0;
-    var sizeSide = document.querySelector('#resize-size');
     sizeSide.min = 0;
     var setSideConstraint = function(sideField, leftField, topField) {
       sideField = Math.min(originalWidth - leftField, originalHeight - topField);
@@ -99,13 +100,14 @@
       setSideConstraint(sizeSide, fromLeft, fromTop);
     };
     sizeSide.oninput = function() {
-      setLeftConstraint(fromLeft, sizeSide.value);
-      setTopConstraint(fromTop, sizeSide.value);
+      setLeftConstraint(fromLeft, sizeSide);
+      setTopConstraint(fromTop, sizeSide);
     };
-    setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
-    setTopConstraint(fromTop, sizeSide.value);
     setLeftConstraint(fromLeft, sizeSide.value);
-    return (fromLeft + sizeSide <= originalWidth) && (fromTop + sizeSide <= originalHeight);
+    setTopConstraint(fromTop, sizeSide.value);
+    setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
+    return (fromLeft.value + sizeSide.value <= originalWidth)
+    && (fromTop.value + sizeSide.value <= originalHeight);
   }
 
   /**
@@ -221,10 +223,13 @@
   };
 
   resizeForm.oninput = function() {
+
     if (resizeFormIsValid() === false) {
-      var buttonSubmit = document.querySelector('#resize-fwd');
       buttonSubmit.setAttribute('disabled', 'disabled');
       buttonSubmit.style.background = '#505050';
+    } else {
+      buttonSubmit.removeAttribute('disabled', 'disabled');
+      buttonSubmit.style.background = 'rgba(255, 231, 83, 0.2) url("../img/icon-arrow.png") center no-repeat';
     }
   };
   /**
