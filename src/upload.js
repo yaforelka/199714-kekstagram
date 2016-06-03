@@ -71,8 +71,43 @@
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
+  var fromLeft = document.querySelector('#resize-x');
+  var fromTop = document.querySelector('#resize-y');
+  var sizeSide = document.querySelector('#resize-size');
+  var buttonSubmit = document.querySelector('#resize-fwd');
+  fromLeft.min = 0;
+  fromTop.min = 0;
+  sizeSide.min = 0;
   function resizeFormIsValid() {
-    return true;
+    var originalWidth = currentResizer._image.naturalWidth;
+    var originalHeight = currentResizer._image.naturalHeight;
+    var setSideConstraint = function(sideField, leftField, topField) {
+      sideField = Math.min(originalWidth - leftField, originalHeight - topField);
+      sizeSide.max = sideField >= 0 ? sideField : 0;
+    };
+    var setLeftConstraint = function(leftField, side) {
+      leftField = originalWidth - side;
+      fromLeft.max = leftField >= 0 ? leftField : 0;
+    };
+    var setTopConstraint = function(topField, side) {
+      topField = originalHeight - side;
+      fromTop.max = topField >= 0 ? topField : 0;
+    };
+    fromLeft.oninput = function() {
+      setSideConstraint(sizeSide, fromLeft, fromTop);
+    };
+    fromTop.oninput = function() {
+      setSideConstraint(sizeSide, fromLeft, fromTop);
+    };
+    sizeSide.oninput = function() {
+      setLeftConstraint(fromLeft, sizeSide);
+      setTopConstraint(fromTop, sizeSide);
+    };
+    setLeftConstraint(fromLeft, sizeSide.value);
+    setTopConstraint(fromTop, sizeSide.value);
+    setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
+    return (+fromLeft.value + +sizeSide.value <= originalWidth)
+    && (+fromTop.value + +sizeSide.value <= originalHeight);
   }
 
   /**
@@ -86,6 +121,7 @@
    * @type {HTMLFormElement}
    */
   var resizeForm = document.forms['upload-resize'];
+
 
   /**
    * Форма добавления фильтра.
@@ -154,6 +190,7 @@
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
+
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
@@ -161,7 +198,6 @@
 
           hideMessage();
         };
-
         fileReader.readAsDataURL(element.files[0]);
       } else {
         // Показ сообщения об ошибке, если загружаемый файл, не является
@@ -186,6 +222,16 @@
     uploadForm.classList.remove('invisible');
   };
 
+  resizeForm.oninput = function() {
+
+    if (!resizeFormIsValid()) {
+      buttonSubmit.setAttribute('disabled', 'disabled');
+      buttonSubmit.style.background = '#505050';
+    } else {
+      buttonSubmit.removeAttribute('disabled', 'disabled');
+      buttonSubmit.style.background = 'rgba(255, 231, 83, 0.2) url("../img/icon-arrow.png") center no-repeat';
+    }
+  };
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
@@ -193,7 +239,6 @@
    */
   resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
-
     if (resizeFormIsValid()) {
       filterImage.src = currentResizer.exportImage().src;
 
