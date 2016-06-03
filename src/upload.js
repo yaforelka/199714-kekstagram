@@ -76,13 +76,11 @@
     var originalHeight = currentResizer._image.naturalHeight;
     var fromLeft = document.querySelector('#resize-x');
     fromLeft.min = 0;
-    fromLeft.value = 0;
     var fromTop = document.querySelector('#resize-y');
     fromTop.min = 0;
-    fromTop.value = 0;
     var sizeSide = document.querySelector('#resize-size');
     sizeSide.min = 0;
-    var setSideConstrant = function(sideField, leftField, topField) {
+    var setSideConstraint = function(sideField, leftField, topField) {
       sideField = Math.min(originalWidth - leftField, originalHeight - topField);
       sizeSide.max = sideField >= 0 ? sideField : 0;
     };
@@ -95,25 +93,19 @@
       fromTop.max = topField >= 0 ? topField : 0;
     };
     fromLeft.oninput = function() {
-      setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+      setSideConstraint(sizeSide, fromLeft, fromTop);
     };
     fromTop.oninput = function() {
-      setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
+      setSideConstraint(sizeSide, fromLeft, fromTop);
     };
     sizeSide.oninput = function() {
       setLeftConstraint(fromLeft, sizeSide.value);
       setTopConstraint(fromTop, sizeSide.value);
     };
-    setSideConstrant(sizeSide, fromLeft.value, fromTop.value);
-    var checkValidity = function(leftField, topField, sideField) {
-      return leftField.validity && topField.validity && sideField.validity;
-    };
-    var formValidity = checkValidity(fromLeft, fromTop, sizeSide);
-    if (formValidity) {
-      return true;
-    } else {
-      return false;
-    }
+    setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
+    setTopConstraint(fromTop, sizeSide.value);
+    setLeftConstraint(fromLeft, sizeSide.value);
+    return (fromLeft + sizeSide <= originalWidth) && (fromTop + sizeSide <= originalHeight);
   }
 
   /**
@@ -196,15 +188,6 @@
 
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
-          var invalidButton = function() {
-            var buttonSubmit = document.querySelector('#resize-fwd');
-            buttonSubmit.setAttribute('disabled', 'disabled');
-            buttonSubmit.style.background = '#505050';
-          };
-          if (resizeFormIsValid() === false) {
-            invalidButton();
-          }
-
 
           uploadMessage.classList.add('invisible');
 
@@ -237,6 +220,13 @@
     uploadForm.classList.remove('invisible');
   };
 
+  resizeForm.oninput = function() {
+    if (resizeFormIsValid() === false) {
+      var buttonSubmit = document.querySelector('#resize-fwd');
+      buttonSubmit.setAttribute('disabled', 'disabled');
+      buttonSubmit.style.background = '#505050';
+    }
+  };
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
