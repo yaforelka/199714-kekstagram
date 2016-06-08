@@ -16,7 +16,12 @@ var getPictureElement = function(data, container) {
   element.querySelector('.picture-comments').textContent = data.comments;
   element.querySelector('.picture-likes').textContent = data.likes;
   container.appendChild(element);
-  var elementImage = new Image();
+  var elementImage = new Image(182, 182);
+  /*elementImage.onload = function(evt) {
+  };*/
+  elementImage.onerror = function() {
+    element.classList.add('picture-load-failure');
+  };
   elementImage.src = data.url;
   return element;
 };

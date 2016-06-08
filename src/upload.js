@@ -252,11 +252,22 @@
   };
   var browserCookies = require('browser-cookies');
   var inputElements = document.querySelectorAll('.upload-filter-controls input');
-  for (var i = 0; i < inputElements.length; i++) {
-    if (inputElements[i].value === browserCookies.get('filter')) {
-      inputElements[i].setAttribute('checked', 'checked');
-      filterImage.className = 'filter-image-preview ' + filterMap[browserCookies.get('filter')];
-    }
+  switch(browserCookies.get('filter')) {
+    case 'none':
+      filterImage.className = 'filter-image-preview ' + filterMap['none'];
+      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
+      break;
+    case 'chrome':
+      filterImage.className = 'filter-image-preview ' + filterMap['chrome'];
+      document.querySelector('#upload-filter-chrome').setAttribute('checked', 'checked');
+      break;
+    case 'sepia':
+      filterImage.className = 'filter-image-preview ' + filterMap['sepia'];
+      document.querySelector('#upload-filter-sepia').setAttribute('checked', 'checked');
+      break;
+    default:
+      filterImage.className = 'filter-image-preview ' + filterMap['none'];
+      document.querySelector('#upload-filter-sepia').setAttribute('checked', 'checked');
   }
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
@@ -276,7 +287,7 @@
    */
   filterForm.onsubmit = function(evt) {
     evt.preventDefault();
-    for (i = 0; i < inputElements.length; i++) {
+    for (var i = 0; i < inputElements.length; i++) {
       if (inputElements[i].checked) {
         var userFilter = inputElements[i];
       }
