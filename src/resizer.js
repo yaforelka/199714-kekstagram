@@ -75,7 +75,8 @@
         this._resizeConstraint.side - freaquency, this._resizeConstraint.side - freaquency);
         return canvasElement;
       };
-      this._element.insertBefore(this._createFrame(2, 8), this._element.lastChild);
+      this._Frame = this._createFrame(2, 8);
+      this._element.insertBefore(this._Frame, this._element.lastChild);
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -320,7 +321,7 @@
      */
     remove: function() {
       this._element.removeChild(this._container);
-
+      this._element.removeChild(this._Frame);
       this._container.removeEventListener('mousedown', this._onDragStart);
       this._container = null;
     },

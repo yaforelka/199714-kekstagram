@@ -267,7 +267,7 @@
       break;
     default:
       filterImage.className = 'filter-image-preview ' + filterMap['none'];
-      document.querySelector('#upload-filter-sepia').setAttribute('checked', 'checked');
+      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
   }
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
@@ -295,12 +295,11 @@
     var birthDate = new Date();
     birthDate.setMonth(9);
     birthDate.setDate(10);
-    var lifeTime = Date.now() - birthDate;
+    var lifeTime = (Date.now() - birthDate) / 24 / 60 / 60 / 1000;
     if (lifeTime < 0) {
-      lifeTime = lifeTime + 365 * 24 * 60 * 60 * 1000;
+      lifeTime = lifeTime + 365;
     }
-    browserCookies.set('filter', userFilter.value, {expires: Date.now() +
-     lifeTime});
+    browserCookies.set('filter', userFilter.value, {expires: lifeTime});
     cleanupResizer();
     updateBackground();
 
