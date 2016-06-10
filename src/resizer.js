@@ -43,6 +43,40 @@
 
       // Отрисовка изначального состояния канваса.
       this.setConstraint();
+      this._createFrame = function(radius, freaquency) {
+        var canvasElement = document.createElement('canvas');
+        canvasElement.style.position = 'absolute';
+        canvasElement.style.left = '50%';
+        canvasElement.style.top = '50%';
+        canvasElement.style.transform = 'translate(-50%, -50%)';
+        canvasElement.style.position = 'absolute';
+        canvasElement.style.left = '50%';
+        canvasElement.style.top = '50%';
+        canvasElement.style.transform = 'translate(-50%, -50%)';
+        canvasElement.setAttribute('width', this._resizeConstraint.side + 2 * radius);
+        canvasElement.setAttribute('height', this._resizeConstraint.side + 2 * radius);
+        var ctx = canvasElement.getContext('2d');
+        ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
+        var x = -this._resizeConstraint.side / 2 + radius;
+        var y = -this._resizeConstraint.side / 2 + radius;
+        while (y < this._resizeConstraint.side / 2 + 2 * radius) {
+          while (x < this._resizeConstraint.side / 2 + 2 * radius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffe753';
+            ctx.fill();
+            x += freaquency;
+          }
+          y += freaquency;
+          x = -this._resizeConstraint.side / 2 + radius;
+        }
+        ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius,
+        -this._resizeConstraint.side / 2 + 2 * radius,
+        this._resizeConstraint.side - freaquency, this._resizeConstraint.side - freaquency);
+        return canvasElement;
+      };
+      this._Frame = this._createFrame(2, 8);
+      this._element.insertBefore(this._Frame, this._element.lastChild);
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -89,17 +123,17 @@
       // чего-либо с другой обводкой.
 
       // Толщина линии.
-      this._ctx.lineWidth = 6;
+      //this._ctx.lineWidth = 6;
 
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      //this._ctx.strokeStyle = '#ffe753';
 
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
+      //this._ctx.setLineDash([15, 10]);
 
       // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
+      //this._ctx.lineDashOffset = 7;
 
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
@@ -118,11 +152,11 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
+      /*this._ctx.strokeRect(
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          this._resizeConstraint.side - this._ctx.lineWidth / 2);*/
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -132,7 +166,7 @@
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
 
-      this._ctx.beginPath();
+      /*this._ctx.beginPath();
       this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       this._ctx.moveTo(0, 0);
       this._ctx.lineTo(this._container.width, 0);
@@ -150,13 +184,13 @@
       this._ctx.lineTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
           this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
       this._ctx.closePath();
-      this._ctx.fill('evenodd');
+      this._ctx.fill('evenodd');*/
 
       this._ctx.font = '20px Tahoma';
       this._ctx.fillStyle = 'white';
       this._ctx.textAlign = 'center';
       this._ctx.fillText(this._image.naturalWidth + ' x ' + this._image.naturalHeight,
-          this._container.width / 2, this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth - 10);
+      this._container.width / 2, this._container.height / 2 - this._resizeConstraint.side / 2 - 10);
     },
 
     /**
@@ -287,7 +321,7 @@
      */
     remove: function() {
       this._element.removeChild(this._container);
-
+      this._element.removeChild(this._Frame);
       this._container.removeEventListener('mousedown', this._onDragStart);
       this._container = null;
     },

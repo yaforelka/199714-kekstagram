@@ -33,7 +33,11 @@
   /**
    * @type {Object.<string, string>}
    */
-  var filterMap;
+  var filterMap = {
+    'none': 'filter-none',
+    'chrome': 'filter-chrome',
+    'sepia': 'filter-sepia'
+  };
 
   /**
    * Объект, который занимается кадрированием изображения.
@@ -247,19 +251,23 @@
     }
   };
   var browserCookies = require('browser-cookies');
-  var filterNone = document.querySelector('#upload-filter-none');
-  var filterChrome = document.querySelector('#upload-filter-chrome');
-  var filterSepia = document.querySelector('#upload-filter-sepia');
-  var lastFilter = browserCookies.get('filter');
-  if (lastFilter === filterNone.value) {
-    filterNone.setAttribute('checked', 'checked');
-    filterImage.classList.add('filter-none');
-  } else if (lastFilter === filterChrome.value) {
-    filterChrome.setAttribute('checked', 'checked');
-    filterImage.classList.add('filter-chrome');
-  } else if (lastFilter === filterSepia.value) {
-    filterSepia.setAttribute('checked', 'checked');
-    filterImage.classList.add('filter-sepia');
+  var inputElements = document.querySelectorAll('.upload-filter-controls input');
+  switch(browserCookies.get('filter')) {
+    case 'none':
+      filterImage.className = 'filter-image-preview ' + filterMap['none'];
+      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
+      break;
+    case 'chrome':
+      filterImage.className = 'filter-image-preview ' + filterMap['chrome'];
+      document.querySelector('#upload-filter-chrome').setAttribute('checked', 'checked');
+      break;
+    case 'sepia':
+      filterImage.className = 'filter-image-preview ' + filterMap['sepia'];
+      document.querySelector('#upload-filter-sepia').setAttribute('checked', 'checked');
+      break;
+    default:
+      filterImage.className = 'filter-image-preview ' + filterMap['none'];
+      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
   }
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
@@ -272,17 +280,6 @@
     resizeForm.classList.remove('invisible');
   };
 
-
-  var rememberFilter = function() {
-    if (filterNone.checked) {
-      var filter = filterNone;
-    } else if (filterChrome.checked) {
-      filter = filterChrome;
-    } else if (filterSepia.checked) {
-      filter = filterSepia;
-    }
-    return filter;
-  };
   /**
    * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
    * записав сохраненный фильтр в cookie.
@@ -290,11 +287,19 @@
    */
   filterForm.onsubmit = function(evt) {
     evt.preventDefault();
-    var filter = rememberFilter();
-    var currentDate = Date.now();
-    var lastBirthdayDate = new Date('2015-10-10');
-    var lifeTime = (currentDate - lastBirthdayDate);
-    browserCookies.set('filter', filter.value, {expires: currentDate + lifeTime});
+    for (var i = 0; i < inputElements.length; i++) {
+      if (inputElements[i].checked) {
+        var userFilter = inputElements[i];
+      }
+    }
+    var birthDate = new Date();
+    birthDate.setMonth(9);
+    birthDate.setDate(10);
+    var lifeTime = (Date.now() - birthDate) / 24 / 60 / 60 / 1000;
+    if (lifeTime < 0) {
+      lifeTime = lifeTime + 365;
+    }
+    browserCookies.set('filter', userFilter.value, {expires: lifeTime});
     cleanupResizer();
     updateBackground();
 
@@ -307,16 +312,6 @@
    * выбранному значению в форме.
    */
   filterForm.onchange = function() {
-    if (!filterMap) {
-      // Ленивая инициализация. Объект не создается до тех пор, пока
-      // не понадобится прочитать его в первый раз, а после этого запоминается
-      // навсегда.
-      filterMap = {
-        'none': 'filter-none',
-        'chrome': 'filter-chrome',
-        'sepia': 'filter-sepia'
-      };
-    }
 
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
