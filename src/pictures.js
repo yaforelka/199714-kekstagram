@@ -1,4 +1,13 @@
 'use strict';
+function queryJSONP(url, callback) {
+  window.__picturesLoadCallback = function(data) {
+    callback(data);
+  };
+  var script = document.createElement('script');
+  script.setAttribute('src', url);
+  document.body.appendChild(script);
+}
+
 var filterContainer = document.querySelector('.filters');
 filterContainer.classList.add('hidden');
 
@@ -30,8 +39,10 @@ var getPictureElement = function(data, container) {
   elementPhoto.src = data.url;
   return element;
 };
-
-window.pictures.forEach(function(picture) {
-  getPictureElement(picture, pictureContainer);
+queryJSONP('//up.htmlacademy.ru/assets/js_intensive/jsonp/pictures.js', function(pictures) {
+  pictures.forEach(function(picture) {
+    getPictureElement(picture, pictureContainer);
+  });
 });
+
 filterContainer.classList.remove('hidden');
