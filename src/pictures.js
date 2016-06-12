@@ -21,6 +21,15 @@
   } else {
     elementToClone = templateElement.querySelector('.picture');
   }
+
+  var pictures = [];
+
+  var Filter = {
+    'ALL': 'popular',
+    'DATE': 'new',
+    'COMMENTS': 'discussed'
+  };
+
   var getPictureElement = function(data, container) {
     var element = elementToClone.cloneNode(true);
     element.querySelector('.picture-comments').textContent = data.comments;
@@ -44,6 +53,13 @@
 
     elementPhoto.src = data.url;
     return element;
+  };
+
+  var renderPictures = function(loadedPictures) {
+    pictureContainer.innerHTML = '';
+    loadedPictures.forEach(function(picture) {
+      getPictureElement(picture, pictureContainer);
+    });
   };
 
   var getPictures = function(callback) {
@@ -74,16 +90,65 @@
     xhr.send();
   };
 
-  var renderPictures = function(pictures) {
-    pictures.forEach(function(picture) {
-      getPictureElement(picture, pictureContainer);
-    });
-  };
-
   getPictures(function(loadedPictures) {
-    var pictures = loadedPictures;
+    pictures = loadedPictures;
     renderPictures(pictures);
   });
 
   filterContainer.classList.remove('hidden');
+  /*var getFilteredPictures = function(pictures, filter) {
+  var picturesToFilter = pictures.slice(0);
+  return picturesToFilter;
+};*/
+  filterContainer.onchange = function() {
+    var getFilteredPictures = function(loadedPictures, filter) {
+      var picturesToFilter = loadedPictures.slice(0);
+
+      switch (filter) {
+        case Filter.ALL:
+          picturesToFilter.map(function(picture) {
+            return picture;
+          });
+          break;
+
+        case Filter.DATE:
+          picturesToFilter.filter(function(picture) {
+            return ((Date.now() - Date.parse(picture.date)) / 24 / 60 / 60 / 1000) <= 4 &&
+            ((Date.now() - Date.parse(picture.date)) / 24 / 60 / 60 / 1000) > 0;
+          }).sort(function(a, b) {
+            return Date.parse(b.date) - Date.parse(a.date);
+          });
+          break;
+
+        case Filter.COMMENTS:
+          picturesToFilter.sort(function(a, b) {
+            return b.comments - a.comments;
+          });
+          break;
+      }
+
+      return picturesToFilter;
+    };
+
+    var currentFilter = [].filter.call(filterContainer['filter'], function(item) {
+      return item.checked;
+    })[0].value;
+
+    switch(currentFilter) {
+      case 'popular':
+        var popularPictures = getFilteredPictures(pictures, 'popular');
+        renderPictures(popularPictures);
+        break;
+
+      case 'new':
+        var newPictures = getFilteredPictures(pictures, 'new');
+        renderPictures(newPictures);
+        break;
+
+      case 'discussed':
+        var discussedPictures = getFilteredPictures(pictures, 'discussed');
+        renderPictures(discussedPictures);
+        break;
+    }
+  };
 })();
