@@ -121,19 +121,21 @@
 
   var labels = document.querySelectorAll('.filters-item');
   var inputs = filterContainer['filter'];
+
+  labels.forEach(function(label) {
+    var index = document.createElement('sup');
+    label.appendChild(index);
+  });
+  var sups = document.querySelectorAll('sup');
+
   getPictures(function(loadedPictures) {
     pictures = loadedPictures;
     renderPictures(pictures);
-    for (var i = 0; i < labels.length; i++) {
-      var index = document.createElement('sup');
-      labels[i].appendChild(index);
-    }
-    var sups = document.querySelectorAll('sup');
-    sups[0].innerHTML = ' (' + getFilteredPictures(pictures, 'popular').length + ')';
-    sups[1].innerHTML = ' (' + getFilteredPictures(pictures, 'new').length + ')';
-    sups[2].innerHTML = ' (' + getFilteredPictures(pictures, 'discussed').length + ')';
-    for (i = 0; i < inputs.length; i++) {
-      if (sups[i].innerHTML === ' (0)') {
+    sups[0].innerHTML = '(' + getFilteredPictures(pictures, 'popular').length + ')';
+    sups[1].innerHTML = '(' + getFilteredPictures(pictures, 'new').length + ')';
+    sups[2].innerHTML = '(' + getFilteredPictures(pictures, 'discussed').length + ')';
+    for (var i = 0; i < inputs.length; i++) {
+      if (sups[i].innerHTML === '(0)') {
         inputs[i].setAttribute('disabled', 'disabled');
       }
     }
