@@ -62,6 +62,10 @@ body {
   border-radius: 2px;
 }
 
+.filters-radio:disabled + .filters-item {
+  color: #cfcfcf;
+}
+
 .upload {
   position: absolute;
   left: 50%;

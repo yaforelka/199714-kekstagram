@@ -90,11 +90,6 @@
     xhr.send();
   };
 
-  getPictures(function(loadedPictures) {
-    pictures = loadedPictures;
-    renderPictures(pictures);
-  });
-
   var getFilteredPictures = function(loadedPictures, filter) {
     var picturesToFilter = loadedPictures.slice(0);
 
@@ -121,14 +116,28 @@
         });
         break;
     }
-    if (picturesToFilter.length === 0) {
-      pictureContainer.classList.add('pictures-not-found');
-    }
-
     return picturesToFilter;
   };
 
-  filterContainer.classList.remove('hidden');
+  var labels = document.querySelectorAll('.filters-item');
+  var inputs = filterContainer['filter'];
+  getPictures(function(loadedPictures) {
+    pictures = loadedPictures;
+    renderPictures(pictures);
+    for (var i = 0; i < labels.length; i++) {
+      var index = document.createElement('sup');
+      labels[i].appendChild(index);
+    }
+    var sups = document.querySelectorAll('sup');
+    sups[0].innerHTML = ' (' + getFilteredPictures(pictures, 'popular').length + ')';
+    sups[1].innerHTML = ' (' + getFilteredPictures(pictures, 'new').length + ')';
+    sups[2].innerHTML = ' (' + getFilteredPictures(pictures, 'discussed').length + ')';
+    for (i = 0; i < inputs.length; i++) {
+      if (sups[i].innerHTML === ' (0)') {
+        inputs[i].setAttribute('disabled', 'disabled');
+      }
+    }
+  });
 
   filterContainer.onchange = function() {
     if (pictureContainer.classList.contains('pictures-not-found')) {
@@ -141,18 +150,30 @@
     switch(currentFilter) {
       case 'popular':
         var popularPictures = getFilteredPictures(pictures, 'popular');
+        if (popularPictures.length === 0) {
+          pictureContainer.classList.add('pictures-not-found');
+        }
         renderPictures(popularPictures);
         break;
 
       case 'new':
         var newPictures = getFilteredPictures(pictures, 'new');
+        if (newPictures.length === 0) {
+          pictureContainer.classList.add('pictures-not-found');
+        }
         renderPictures(newPictures);
         break;
 
       case 'discussed':
         var discussedPictures = getFilteredPictures(pictures, 'discussed');
+        if (discussedPictures.length === 0) {
+          pictureContainer.classList.add('pictures-not-found');
+        }
         renderPictures(discussedPictures);
         break;
     }
   };
+
+  filterContainer.classList.remove('hidden');
+
 })();
