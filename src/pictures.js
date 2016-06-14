@@ -145,34 +145,16 @@
     if (pictureContainer.classList.contains('pictures-not-found')) {
       pictureContainer.classList.remove('pictures-not-found');
     }
+
     var currentFilter = [].filter.call(filterContainer['filter'], function(item) {
       return item.checked;
     })[0].value;
 
-    switch(currentFilter) {
-      case 'popular':
-        var popularPictures = getFilteredPictures(pictures, 'popular');
-        if (popularPictures.length === 0) {
-          pictureContainer.classList.add('pictures-not-found');
-        }
-        renderPictures(popularPictures);
-        break;
+    var filteredPictures = getFilteredPictures(pictures, currentFilter);
+    renderPictures(filteredPictures);
 
-      case 'new':
-        var newPictures = getFilteredPictures(pictures, 'new');
-        if (newPictures.length === 0) {
-          pictureContainer.classList.add('pictures-not-found');
-        }
-        renderPictures(newPictures);
-        break;
-
-      case 'discussed':
-        var discussedPictures = getFilteredPictures(pictures, 'discussed');
-        if (discussedPictures.length === 0) {
-          pictureContainer.classList.add('pictures-not-found');
-        }
-        renderPictures(discussedPictures);
-        break;
+    if (filteredPictures.length === 0) {
+      pictureContainer.classList.add('pictures-not-found');
     }
   };
 
