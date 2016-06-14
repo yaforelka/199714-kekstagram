@@ -365,6 +365,11 @@ input[type=radio]:checked + .upload-filter-label {
   border-radius: 10px;
 }
 
+.pictures-not-found:after {
+  width: 300px;
+  margin-left: -150px;
+}
+
 .pictures-loading:after {
   content: "Загрузка...";
 }
