@@ -62,6 +62,10 @@ body {
   border-radius: 2px;
 }
 
+.filters-radio:disabled + .filters-item {
+  color: #cfcfcf;
+}
+
 .upload {
   position: absolute;
   left: 50%;
@@ -345,7 +349,8 @@ input[type=radio]:checked + .upload-filter-label {
 }
 
 .pictures-loading:after,
-.pictures-failure:after {
+.pictures-failure:after,
+.pictures-not-found:after {
   position: absolute;
   top: 260px;
   left: 50%;
@@ -364,12 +369,21 @@ input[type=radio]:checked + .upload-filter-label {
   border-radius: 10px;
 }
 
+.pictures-not-found:after {
+  width: 300px;
+  margin-left: -150px;
+}
+
 .pictures-loading:after {
   content: "Загрузка...";
 }
 
 .pictures-failure:after {
   content: "Ошибка загрузки";
+}
+
+.pictures-not-found:after {
+  content: "Упс... По Вашему запросу ничего не найдено";
 }
 
 .picture {
