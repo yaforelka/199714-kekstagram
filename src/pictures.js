@@ -9,8 +9,8 @@
 }*/
 
 (function() {
-  var filterContainer = document.querySelector('.filters');
-  filterContainer.classList.add('hidden');
+  var filtersContainer = document.querySelector('.filters');
+  filtersContainer.classList.add('hidden');
 
   var pictureContainer = document.querySelector('.pictures');
   var templateElement = document.querySelector('template');
@@ -23,11 +23,15 @@
   }
 
   var pictures = [];
+  var filteredPictures = [];
+
+  var PAGE_SIZE = 12;
+  var pageNumber = 0;
 
   var Filter = {
-    'ALL': 'popular',
-    'DATE': 'new',
-    'COMMENTS': 'discussed'
+    'ALL': 'filter-popular',
+    'DATE': 'filter-new',
+    'COMMENTS': 'filter-discussed'
   };
 
   var getPictureElement = function(data, container) {
@@ -55,39 +59,38 @@
     return element;
   };
 
-  var renderPictures = function(loadedPictures) {
-    pictureContainer.innerHTML = '';
-    loadedPictures.forEach(function(picture) {
-      getPictureElement(picture, pictureContainer);
-    });
+  var isNextPageAvailable = function(loadedPictures, page, pageSize) {
+    return page < Math.ceil(loadedPictures.length / pageSize);
   };
 
-  var getPictures = function(callback) {
-    pictureContainer.classList.add('pictures-loading');
-    var xhr = new XMLHttpRequest();
+  var isBottomReached = function() {
+    var GAP = 190;
+    var footerElement = document.querySelector('footer');
+    var footerPosition = footerElement.getBoundingClientRect();
+    return footerPosition.top - window.innerHeight - GAP <= 0;
+  };
 
-    xhr.onload = function(evt) {
-      var loadedData = JSON.parse(evt.target.response);
-      callback(loadedData);
-    };
+  var renderPictures = function(loadedPictures, page) {
+    var From = page * PAGE_SIZE;
+    var To = From + PAGE_SIZE;
+    var container = document.createDocumentFragment();
 
-    xhr.timeout = 5000;
-    xhr.ontimeout = function() {
-      pictureContainer.classList.add('pictures-failure');
-    };
+    loadedPictures.slice(From, To).forEach(function(picture) {
+      getPictureElement(picture, container);
+    });
+    pictureContainer.appendChild(container);
+  };
 
-    xhr.onerror = function() {
-      pictureContainer.classList.add('pictures-failure');
-    };
-
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        pictureContainer.classList.remove('pictures-loading');
-      }
-    };
-
-    xhr.open('GET', '//o0.github.io/assets/json/pictures.json', true);
-    xhr.send();
+  var renderNextPages = function(reset) {
+    if (reset) {
+      pageNumber = 0;
+      pictureContainer.innerHTML = '';
+    }
+    while (isBottomReached() &&
+      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+      renderPictures(filteredPictures, pageNumber);
+      pageNumber++;
+    }
   };
 
   var getFilteredPictures = function(loadedPictures, filter) {
@@ -119,8 +122,76 @@
     return picturesToFilter;
   };
 
+  var setFilterEnabled = function(filter) {
+    pictureContainer.classList.remove('pictures-not-found');
+    filteredPictures = getFilteredPictures(pictures, filter);
+    if (filteredPictures.length === 0) {
+      pictureContainer.classList.add('pictures-not-found');
+    }
+    renderNextPages(true);
+  };
+
+  var _onClick = function(evt) {
+    if (evt.target.classList.contains('filters-item')) {
+      setFilterEnabled(evt.target.htmlFor);
+    }
+  };
+  var setFiltersEnabled = function() {
+    filtersContainer.addEventListener('click', _onClick);
+  };
+
+  var throttle = function(functionToOptimize, time) {
+    var lastCall = Date.now();
+    var optimizedFunction = functionToOptimize;
+    if (Date.now() - lastCall >= time) {
+      optimizedFunction();
+      lastCall = Date.now();
+    }
+    return optimizedFunction;
+  };
+
+  var optimizedScroll = throttle(function() {
+    if (isBottomReached() &&
+      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+      renderPictures(filteredPictures, pageNumber);
+      pageNumber++;
+    }
+  }, 100);
+
+  var setScrollEnabled = function() {
+    window.addEventListener('scroll', optimizedScroll);
+  };
+
+  var getPictures = function(callback) {
+    pictureContainer.classList.add('pictures-loading');
+    var xhr = new XMLHttpRequest();
+
+    xhr.onload = function(evt) {
+      var loadedData = JSON.parse(evt.target.response);
+      callback(loadedData);
+    };
+
+    xhr.timeout = 5000;
+    xhr.ontimeout = function() {
+      pictureContainer.classList.add('pictures-failure');
+    };
+
+    xhr.onerror = function() {
+      pictureContainer.classList.add('pictures-failure');
+    };
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        pictureContainer.classList.remove('pictures-loading');
+      }
+    };
+
+    xhr.open('GET', '//o0.github.io/assets/json/pictures.json', true);
+    xhr.send();
+  };
+
   var labels = document.querySelectorAll('.filters-item');
-  var inputs = filterContainer['filter'];
+  var inputs = filtersContainer['filter'];
 
   labels.forEach(function(label) {
     var index = document.createElement('sup');
@@ -130,10 +201,12 @@
 
   getPictures(function(loadedPictures) {
     pictures = loadedPictures;
-    renderPictures(pictures);
-    sups[0].innerHTML = '(' + getFilteredPictures(pictures, 'popular').length + ')';
-    sups[1].innerHTML = '(' + getFilteredPictures(pictures, 'new').length + ')';
-    sups[2].innerHTML = '(' + getFilteredPictures(pictures, 'discussed').length + ')';
+    sups[0].innerHTML = '(' + getFilteredPictures(pictures, 'filter-popular').length + ')';
+    sups[1].innerHTML = '(' + getFilteredPictures(pictures, 'filter-new').length + ')';
+    sups[2].innerHTML = '(' + getFilteredPictures(pictures, 'filter-discussed').length + ')';
+    setFiltersEnabled();
+    setFilterEnabled(Filter.ALL);
+    setScrollEnabled();
     for (var i = 0; i < inputs.length; i++) {
       if (sups[i].innerHTML === '(0)') {
         inputs[i].setAttribute('disabled', 'disabled');
@@ -141,23 +214,6 @@
     }
   });
 
-  filterContainer.onchange = function() {
-    if (pictureContainer.classList.contains('pictures-not-found')) {
-      pictureContainer.classList.remove('pictures-not-found');
-    }
-
-    var currentFilter = [].filter.call(filterContainer['filter'], function(item) {
-      return item.checked;
-    })[0].value;
-
-    var filteredPictures = getFilteredPictures(pictures, currentFilter);
-    renderPictures(filteredPictures);
-
-    if (filteredPictures.length === 0) {
-      pictureContainer.classList.add('pictures-not-found');
-    }
-  };
-
-  filterContainer.classList.remove('hidden');
+  filtersContainer.classList.remove('hidden');
 
 })();
