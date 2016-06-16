@@ -25,6 +25,8 @@
   var pictures = [];
   var filteredPictures = [];
 
+  var DISTANCE_TO_FOOTER = 190;
+  var PICTURES_LOAD_TIMEOUT = 5000;
   var PAGE_SIZE = 12;
   var pageNumber = 0;
 
@@ -59,23 +61,24 @@
     return element;
   };
 
-  var isNextPageAvailable = function(loadedPictures, page, pageSize) {
-    return page < Math.ceil(loadedPictures.length / pageSize);
+
+  var isNextPageAvailable = function() {
+    return pageNumber < Math.ceil(pictures.length / PAGE_SIZE);
   };
 
+  var footerElement = document.querySelector('footer');
+
   var isBottomReached = function() {
-    var GAP = 190;
-    var footerElement = document.querySelector('footer');
     var footerPosition = footerElement.getBoundingClientRect();
-    return footerPosition.top - window.innerHeight - GAP <= 0;
+    return footerPosition.top - window.innerHeight - DISTANCE_TO_FOOTER <= 0;
   };
 
   var renderPictures = function(loadedPictures, page) {
-    var From = page * PAGE_SIZE;
-    var To = From + PAGE_SIZE;
+    var from = page * PAGE_SIZE;
+    var to = from + PAGE_SIZE;
     var container = document.createDocumentFragment();
 
-    loadedPictures.slice(From, To).forEach(function(picture) {
+    loadedPictures.slice(from, to).forEach(function(picture) {
       getPictureElement(picture, container);
     });
     pictureContainer.appendChild(container);
@@ -87,7 +90,7 @@
       pictureContainer.innerHTML = '';
     }
     while (isBottomReached() &&
-      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+           isNextPageAvailable()) {
       renderPictures(filteredPictures, pageNumber);
       pageNumber++;
     }
@@ -152,7 +155,7 @@
 
   var optimizedScroll = throttle(function() {
     if (isBottomReached() &&
-      isNextPageAvailable(pictures, pageNumber, PAGE_SIZE)) {
+      isNextPageAvailable()) {
       renderPictures(filteredPictures, pageNumber);
       pageNumber++;
     }
@@ -171,7 +174,7 @@
       callback(loadedData);
     };
 
-    xhr.timeout = 5000;
+    xhr.timeout = PICTURES_LOAD_TIMEOUT;
     xhr.ontimeout = function() {
       pictureContainer.classList.add('pictures-failure');
     };
