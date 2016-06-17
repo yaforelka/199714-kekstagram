@@ -135,8 +135,13 @@
   };
 
   var _onClick = function(evt) {
-    if (evt.target.classList.contains('filters-item')) {
-      setFilterEnabled(evt.target.htmlFor);
+    var target = evt.target;
+    while (target !== filtersContainer) {
+      if (target.tagName === 'LABEL') {
+        setFilterEnabled(target.htmlFor);
+        return;
+      }
+      target = target.parentNode;
     }
   };
   var setFiltersEnabled = function() {
