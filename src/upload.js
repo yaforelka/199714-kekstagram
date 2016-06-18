@@ -82,31 +82,26 @@
   fromLeft.min = 0;
   fromTop.min = 0;
   sizeSide.min = 0;
+
   function resizeFormIsValid() {
     var originalWidth = currentResizer._image.naturalWidth;
     var originalHeight = currentResizer._image.naturalHeight;
+
     var setSideConstraint = function(sideField, leftField, topField) {
       sideField = Math.min(originalWidth - leftField, originalHeight - topField);
       sizeSide.max = sideField >= 0 ? sideField : 0;
     };
+
     var setLeftConstraint = function(leftField, side) {
       leftField = originalWidth - side;
       fromLeft.max = leftField >= 0 ? leftField : 0;
     };
+
     var setTopConstraint = function(topField, side) {
       topField = originalHeight - side;
       fromTop.max = topField >= 0 ? topField : 0;
     };
-    fromLeft.oninput = function() {
-      setSideConstraint(sizeSide, fromLeft, fromTop);
-    };
-    fromTop.oninput = function() {
-      setSideConstraint(sizeSide, fromLeft, fromTop);
-    };
-    sizeSide.oninput = function() {
-      setLeftConstraint(fromLeft, sizeSide);
-      setTopConstraint(fromTop, sizeSide);
-    };
+
     setLeftConstraint(fromLeft, sizeSide.value);
     setTopConstraint(fromTop, sizeSide.value);
     setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
@@ -126,6 +121,17 @@
    */
   var resizeForm = document.forms['upload-resize'];
 
+  var _onInput = function() {
+    if (!resizeFormIsValid()) {
+      buttonSubmit.setAttribute('disabled', 'disabled');
+      buttonSubmit.style.background = '#505050';
+    } else {
+      buttonSubmit.removeAttribute('disabled', 'disabled');
+      buttonSubmit.removeAttribute('style');
+    }
+  };
+
+  resizeForm.addEventListener('input', _onInput);
 
   /**
    * Форма добавления фильтра.
@@ -179,19 +185,19 @@
    * и показывается форма кадрирования.
    * @param {Event} evt
    */
-  uploadForm.onchange = function(evt) {
+
+  var _onChange = function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
-      // Проверка типа загружаемого файла, тип должен быть изображением
-      // одного из форматов: JPEG, PNG, GIF или SVG.
+       // Проверка типа загружаемого файла, тип должен быть изображением
+       // одного из форматов: JPEG, PNG, GIF или SVG.
       if (fileRegExp.test(element.files[0].type)) {
         var fileReader = new FileReader();
 
         showMessage(Action.UPLOADING);
 
-        fileReader.onload = function() {
+        var _onLoad = function() {
           cleanupResizer();
-
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
 
@@ -202,91 +208,46 @@
 
           hideMessage();
         };
+        fileReader.addEventListener('load', _onLoad);
         fileReader.readAsDataURL(element.files[0]);
       } else {
-        // Показ сообщения об ошибке, если загружаемый файл, не является
-        // поддерживаемым изображением.
+         // Показ сообщения об ошибке, если загружаемый файл, не является
+         // поддерживаемым изображением.
         showMessage(Action.ERROR);
       }
     }
   };
+
+  var _onReset = function(evt) {
+    evt.preventDefault();
+    if (evt.target === resizeForm) {
+      cleanupResizer();
+      updateBackground();
+
+      resizeForm.classList.add('invisible');
+      uploadForm.classList.remove('invisible');
+    } else if (evt.target === filterForm) {
+      filterForm.classList.add('invisible');
+      resizeForm.classList.remove('invisible');
+    }
+  };
+
+  uploadForm.addEventListener('change', _onChange);
 
   /**
    * Обработка сброса формы кадрирования. Возвращает в начальное состояние
    * и обновляет фон.
    * @param {Event} evt
    */
-  resizeForm.onreset = function(evt) {
-    evt.preventDefault();
-
-    cleanupResizer();
-    updateBackground();
-
-    resizeForm.classList.add('invisible');
-    uploadForm.classList.remove('invisible');
-  };
-
-  resizeForm.oninput = function() {
-
-    if (!resizeFormIsValid()) {
-      buttonSubmit.setAttribute('disabled', 'disabled');
-      buttonSubmit.style.background = '#505050';
-    } else {
-      buttonSubmit.removeAttribute('disabled', 'disabled');
-      buttonSubmit.style.background = 'rgba(255, 231, 83, 0.2) url("../img/icon-arrow.png") center no-repeat';
-    }
-  };
+  resizeForm.addEventListener('reset', _onReset);
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  resizeForm.onsubmit = function(evt) {
-    evt.preventDefault();
-    if (resizeFormIsValid()) {
-      filterImage.src = currentResizer.exportImage().src;
 
-      resizeForm.classList.add('invisible');
-      filterForm.classList.remove('invisible');
-    }
-  };
-  var browserCookies = require('browser-cookies');
   var inputElements = document.querySelectorAll('.upload-filter-controls input');
-  switch(browserCookies.get('filter')) {
-    case 'none':
-      filterImage.className = 'filter-image-preview ' + filterMap['none'];
-      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
-      break;
-    case 'chrome':
-      filterImage.className = 'filter-image-preview ' + filterMap['chrome'];
-      document.querySelector('#upload-filter-chrome').setAttribute('checked', 'checked');
-      break;
-    case 'sepia':
-      filterImage.className = 'filter-image-preview ' + filterMap['sepia'];
-      document.querySelector('#upload-filter-sepia').setAttribute('checked', 'checked');
-      break;
-    default:
-      filterImage.className = 'filter-image-preview ' + filterMap['none'];
-      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
-  }
-  /**
-   * Сброс формы фильтра. Показывает форму кадрирования.
-   * @param {Event} evt
-   */
-  filterForm.onreset = function(evt) {
-    evt.preventDefault();
-
-    filterForm.classList.add('invisible');
-    resizeForm.classList.remove('invisible');
-  };
-
-  /**
-   * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
-   * записав сохраненный фильтр в cookie.
-   * @param {Event} evt
-   */
-  filterForm.onsubmit = function(evt) {
-    evt.preventDefault();
+  var setCookie = function() {
     for (var i = 0; i < inputElements.length; i++) {
       if (inputElements[i].checked) {
         var userFilter = inputElements[i];
@@ -300,28 +261,66 @@
       lifeTime = lifeTime + 365;
     }
     browserCookies.set('filter', userFilter.value, {expires: lifeTime});
-    cleanupResizer();
-    updateBackground();
-
-    filterForm.classList.add('invisible');
-    uploadForm.classList.remove('invisible');
   };
+
+  var _onSubmit = function(evt) {
+    evt.preventDefault();
+    if (evt.target === resizeForm) {
+      filterImage.src = currentResizer.exportImage().src;
+      resizeForm.classList.add('invisible');
+      filterForm.classList.remove('invisible');
+    } else if (evt.target === filterForm) {
+      setCookie();
+      cleanupResizer();
+      updateBackground();
+
+      filterForm.classList.add('invisible');
+      uploadForm.classList.remove('invisible');
+    }
+  };
+
+  resizeForm.addEventListener('submit', _onSubmit);
+
+  var browserCookies = require('browser-cookies');
+  var filter = browserCookies.get('filter');
+  var getCookie = function() {
+    if (+filter === 0) {
+      filterImage.className = 'filter-image-preview ' + filterMap['none'];
+      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
+    } else {
+      filterImage.className = 'filter-image-preview ' + filterMap[filter];
+      document.querySelector('#upload-filter-' + filter).setAttribute('checked', 'checked');
+    }
+  };
+  getCookie();
+  /**
+   * Сброс формы фильтра. Показывает форму кадрирования.
+   * @param {Event} evt
+   */
+  filterForm.addEventListener('reset', _onReset);
+  /**
+   * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
+   * записав сохраненный фильтр в cookie.
+   * @param {Event} evt
+   */
+  filterForm.addEventListener('submit', _onSubmit);
 
   /**
    * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
    * выбранному значению в форме.
    */
-  filterForm.onchange = function() {
 
+  var _onChangeFilter = function() {
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
 
-    // Класс перезаписывается, а не обновляется через classList потому что нужно
-    // убрать предыдущий примененный класс. Для этого нужно или запоминать его
-    // состояние или просто перезаписывать.
+   // Класс перезаписывается, а не обновляется через classList потому что нужно
+   // убрать предыдущий примененный класс. Для этого нужно или запоминать его
+   // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
   };
+  filterForm.addEventListener('change', _onChangeFilter);
 
   cleanupResizer();
   updateBackground();
