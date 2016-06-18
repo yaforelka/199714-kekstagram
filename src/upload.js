@@ -284,7 +284,7 @@
   var browserCookies = require('browser-cookies');
   var filter = browserCookies.get('filter');
   var getCookie = function() {
-    if (+filter === 0) {
+    if (filter === null) {
       filterImage.className = 'filter-image-preview ' + filterMap['none'];
       document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
     } else {
