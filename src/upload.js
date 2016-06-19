@@ -82,7 +82,6 @@
   fromLeft.min = 0;
   fromTop.min = 0;
   sizeSide.min = 0;
-
   function resizeFormIsValid() {
     var originalWidth = currentResizer._image.naturalWidth;
     var originalHeight = currentResizer._image.naturalHeight;
@@ -106,7 +105,8 @@
     setTopConstraint(fromTop, sizeSide.value);
     setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
     return (+fromLeft.value + +sizeSide.value <= originalWidth)
-    && (+fromTop.value + +sizeSide.value <= originalHeight);
+    && (+fromTop.value + +sizeSide.value <= originalHeight) && (+fromLeft.value >= 0)
+    && (+fromTop.value >= 0) && (+sizeSide.value >= 0);
   }
 
   /**
@@ -122,6 +122,7 @@
   var resizeForm = document.forms['upload-resize'];
 
   var _onInput = function() {
+    currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
     if (!resizeFormIsValid()) {
       buttonSubmit.setAttribute('disabled', 'disabled');
       buttonSubmit.style.background = '#505050';
@@ -200,7 +201,6 @@
           cleanupResizer();
           currentResizer = new Resizer(fileReader.result);
           currentResizer.setElement(resizeForm);
-
           uploadMessage.classList.add('invisible');
 
           uploadForm.classList.add('invisible');
@@ -208,6 +208,7 @@
 
           hideMessage();
         };
+
         fileReader.addEventListener('load', _onLoad);
         fileReader.readAsDataURL(element.files[0]);
       } else {
@@ -217,6 +218,14 @@
       }
     }
   };
+
+  var _onResizerChange = function() {
+    var defaultValues = currentResizer.getConstraint();
+    fromLeft.value = defaultValues.x;
+    fromTop.value = defaultValues.y;
+    sizeSide.value = defaultValues.side;
+  };
+  window.addEventListener('resizerchange', _onResizerChange);
 
   var _onReset = function(evt) {
     evt.preventDefault();
@@ -240,6 +249,7 @@
    * @param {Event} evt
    */
   resizeForm.addEventListener('reset', _onReset);
+
   /**
    * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
    * кропнутое изображение в форму добавления фильтра и показывает ее.
