@@ -43,25 +43,25 @@
 
       // Отрисовка изначального состояния канваса.
       this.setConstraint();
-      var canvasElement = document.createElement('canvas');
-      canvasElement.style.position = 'absolute';
-      canvasElement.style.left = '50%';
-      canvasElement.style.top = '50%';
-      canvasElement.style.transform = 'translate(-50%, -50%)';
-      canvasElement.style.position = 'absolute';
-      canvasElement.style.left = '50%';
-      canvasElement.style.top = '50%';
-      canvasElement.style.transform = 'translate(-50%, -50%)';
+      this._frame = document.createElement('canvas');
+      this._frame.style.position = 'absolute';
+      this._frame.style.left = '50%';
+      this._frame.style.top = '50%';
+      this._frame.style.transform = 'translate(-50%, -50%)';
+      this._frame.style.position = 'absolute';
+      this._frame.style.left = '50%';
+      this._frame.style.top = '50%';
+      this._frame.style.transform = 'translate(-50%, -50%)';
 
-      this._createFrame = function(radius, freaquency) {
-        canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius);
-        canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius);
+      this._createFrame = function(radius, freaquency, canvasElement) {
+        canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius + freaquency);
+        canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius + freaquency);
         var ctx = canvasElement.getContext('2d');
         ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
-        var x = -this._resizeConstraint.side / 2 + radius;
-        var y = -this._resizeConstraint.side / 2 + radius;
-        while (y < this._resizeConstraint.side / 2 + 2 * radius) {
-          while (x < this._resizeConstraint.side / 2 + 2 * radius) {
+        var x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
+        var y = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
+        while (y < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
+          while (x < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffe753';
@@ -69,15 +69,16 @@
             x += freaquency;
           }
           y += freaquency;
-          x = -this._resizeConstraint.side / 2 + radius;
+          x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
         }
-        ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius,
-          -this._resizeConstraint.side / 2 + 2 * radius,
-          this._resizeConstraint.side - radius - freaquency / 1.5,
-          this._resizeConstraint.side - radius - freaquency / 1.5);
+        ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
+          -this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
+          this._resizeConstraint.side - radius - freaquency / 3,
+          this._resizeConstraint.side - radius - freaquency / 3);
         return canvasElement;
       };
-      this._element.insertBefore(canvasElement, this._element.lastChild);
+
+      this._element.insertBefore(this._frame, this._element.lastChild);
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -150,7 +151,7 @@
       // нужно отрисовать и координаты его верхнего левого угла.
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
-      this._createFrame(3, 10);
+
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       /*this._ctx.strokeRect(
@@ -186,6 +187,7 @@
           this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
       this._ctx.closePath();
       this._ctx.fill('evenodd');*/
+      this._createFrame(3, 15, this._frame);
       this._ctx.font = '20px Tahoma';
       this._ctx.fillStyle = 'white';
       this._ctx.textAlign = 'center';
@@ -321,7 +323,7 @@
      */
     remove: function() {
       this._element.removeChild(this._container);
-      this._element.removeChild(this._Frame);
+      this._element.removeChild(this._frame);
       this._container.removeEventListener('mousedown', this._onDragStart);
       this._container = null;
     },

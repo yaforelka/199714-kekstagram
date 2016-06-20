@@ -75,6 +75,7 @@
    * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
+
   var fromLeft = document.querySelector('#resize-x');
   var fromTop = document.querySelector('#resize-y');
   var sizeSide = document.querySelector('#resize-size');
@@ -104,7 +105,6 @@
     setLeftConstraint(fromLeft, sizeSide.value);
     setTopConstraint(fromTop, sizeSide.value);
     setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
-
     return (+fromLeft.value + +sizeSide.value <= originalWidth)
     && (+fromTop.value + +sizeSide.value <= originalHeight) && (+fromLeft.value >= 0)
     && (+fromTop.value >= 0) && (+sizeSide.value >= 0);
@@ -128,14 +128,16 @@
     sizeSide.value = defaultValues.side;
   };
 
-  var _onInput = function() {
-    currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
+  var _onInput = function(evt) {
     if (!resizeFormIsValid()) {
       buttonSubmit.setAttribute('disabled', 'disabled');
       buttonSubmit.style.background = '#505050';
     } else {
       buttonSubmit.removeAttribute('disabled', 'disabled');
       buttonSubmit.removeAttribute('style');
+    }
+    if (evt.target.tagName === 'INPUT') {
+      currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
     }
   };
 
