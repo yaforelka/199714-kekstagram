@@ -43,18 +43,19 @@
 
       // Отрисовка изначального состояния канваса.
       this.setConstraint();
-      /*this._createFrame = function(radius, freaquency) {
-        var canvasElement = document.createElement('canvas');
-        canvasElement.style.position = 'absolute';
-        canvasElement.style.left = '50%';
-        canvasElement.style.top = '50%';
-        canvasElement.style.transform = 'translate(-50%, -50%)';
-        canvasElement.style.position = 'absolute';
-        canvasElement.style.left = '50%';
-        canvasElement.style.top = '50%';
-        canvasElement.style.transform = 'translate(-50%, -50%)';
-        canvasElement.setAttribute('width', this._resizeConstraint.side + 2 * radius);
-        canvasElement.setAttribute('height', this._resizeConstraint.side + 2 * radius);
+      var canvasElement = document.createElement('canvas');
+      canvasElement.style.position = 'absolute';
+      canvasElement.style.left = '50%';
+      canvasElement.style.top = '50%';
+      canvasElement.style.transform = 'translate(-50%, -50%)';
+      canvasElement.style.position = 'absolute';
+      canvasElement.style.left = '50%';
+      canvasElement.style.top = '50%';
+      canvasElement.style.transform = 'translate(-50%, -50%)';
+
+      this._createFrame = function(radius, freaquency) {
+        canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius);
+        canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius);
         var ctx = canvasElement.getContext('2d');
         ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
         var x = -this._resizeConstraint.side / 2 + radius;
@@ -71,12 +72,12 @@
           x = -this._resizeConstraint.side / 2 + radius;
         }
         ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius,
-        -this._resizeConstraint.side / 2 + 2 * radius,
-        this._resizeConstraint.side - freaquency, this._resizeConstraint.side - freaquency);
+          -this._resizeConstraint.side / 2 + 2 * radius,
+          this._resizeConstraint.side - radius - freaquency / 1.5,
+          this._resizeConstraint.side - radius - freaquency / 1.5);
         return canvasElement;
-      };*/
-      //this._Frame = this._createFrame(2, 8);
-      //this._element.insertBefore(this._Frame, this._element.lastChild);
+      };
+      this._element.insertBefore(canvasElement, this._element.lastChild);
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -123,17 +124,17 @@
       // чего-либо с другой обводкой.
 
       // Толщина линии.
-      this._ctx.lineWidth = 6;
+      //this._ctx.lineWidth = 6;
 
       // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
+      //this._ctx.strokeStyle = '#ffe753';
 
       // Размер штрихов. Первый элемент массива задает длину штриха, второй
       // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
+      //this._ctx.setLineDash([15, 10]);
 
       // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
+      //this._ctx.lineDashOffset = 7;
 
       // Сохранение состояния канваса.
       // Подробней см. строку 132.
@@ -149,14 +150,14 @@
       // нужно отрисовать и координаты его верхнего левого угла.
       // Координаты задаются от центра холста.
       this._ctx.drawImage(this._image, displX, displY);
-
+      this._createFrame(3, 10);
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      this._ctx.strokeRect(
+      /*this._ctx.strokeRect(
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
           this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          this._resizeConstraint.side - this._ctx.lineWidth / 2);*/
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -166,7 +167,7 @@
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
       this._ctx.restore();
 
-      this._ctx.beginPath();
+      /*this._ctx.beginPath();
       this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
       this._ctx.moveTo(0, 0);
       this._ctx.lineTo(this._container.width, 0);
@@ -184,8 +185,7 @@
       this._ctx.lineTo(this._container.width / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth,
           this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
       this._ctx.closePath();
-      this._ctx.fill('evenodd');
-
+      this._ctx.fill('evenodd');*/
       this._ctx.font = '20px Tahoma';
       this._ctx.fillStyle = 'white';
       this._ctx.textAlign = 'center';

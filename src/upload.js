@@ -104,6 +104,7 @@
     setLeftConstraint(fromLeft, sizeSide.value);
     setTopConstraint(fromTop, sizeSide.value);
     setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
+
     return (+fromLeft.value + +sizeSide.value <= originalWidth)
     && (+fromTop.value + +sizeSide.value <= originalHeight) && (+fromLeft.value >= 0)
     && (+fromTop.value >= 0) && (+sizeSide.value >= 0);
@@ -120,6 +121,12 @@
    * @type {HTMLFormElement}
    */
   var resizeForm = document.forms['upload-resize'];
+  var _onResizerChange = function() {
+    var defaultValues = currentResizer.getConstraint();
+    fromLeft.value = defaultValues.x;
+    fromTop.value = defaultValues.y;
+    sizeSide.value = defaultValues.side;
+  };
 
   var _onInput = function() {
     currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
@@ -133,6 +140,8 @@
   };
 
   resizeForm.addEventListener('input', _onInput);
+  window.addEventListener('resizerchange', _onResizerChange);
+  window.addEventListener('resizerchange', _onInput);
 
   /**
    * Форма добавления фильтра.
@@ -218,14 +227,6 @@
       }
     }
   };
-
-  var _onResizerChange = function() {
-    var defaultValues = currentResizer.getConstraint();
-    fromLeft.value = defaultValues.x;
-    fromTop.value = defaultValues.y;
-    sizeSide.value = defaultValues.side;
-  };
-  window.addEventListener('resizerchange', _onResizerChange);
 
   var _onReset = function(evt) {
     evt.preventDefault();
