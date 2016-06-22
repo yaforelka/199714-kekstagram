@@ -14,6 +14,41 @@
     this._container = document.createElement('canvas');
     this._ctx = this._container.getContext('2d');
 
+    this._frame = document.createElement('canvas');
+    this._frame.style.position = 'absolute';
+    this._frame.style.left = '50%';
+    this._frame.style.top = '50%';
+    this._frame.style.transform = 'translate(-50%, -50%)';
+    this._frame.style.position = 'absolute';
+    this._frame.style.left = '50%';
+    this._frame.style.top = '50%';
+    this._frame.style.transform = 'translate(-50%, -50%)';
+
+    this._drawDotted = function(radius, freaquency, canvasElement) {
+      canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius + freaquency);
+      canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius + freaquency);
+      var ctx = canvasElement.getContext('2d');
+      ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
+      var x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
+      var y = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
+      while (y < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
+        while (x < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI);
+          ctx.fillStyle = '#ffe753';
+          ctx.fill();
+          x += freaquency;
+        }
+        y += freaquency;
+        x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
+      }
+      ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
+        -this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
+        this._resizeConstraint.side - radius - freaquency / 3,
+        this._resizeConstraint.side - radius - freaquency / 3);
+      return canvasElement;
+    };
+
     // Создаем холст только после загрузки изображения.
     this._image.onload = function() {
       // Размер холста равен размеру загруженного изображения. Это нужно
@@ -43,41 +78,6 @@
 
       // Отрисовка изначального состояния канваса.
       this.setConstraint();
-      this._frame = document.createElement('canvas');
-      this._frame.style.position = 'absolute';
-      this._frame.style.left = '50%';
-      this._frame.style.top = '50%';
-      this._frame.style.transform = 'translate(-50%, -50%)';
-      this._frame.style.position = 'absolute';
-      this._frame.style.left = '50%';
-      this._frame.style.top = '50%';
-      this._frame.style.transform = 'translate(-50%, -50%)';
-
-      this._createFrame = function(radius, freaquency, canvasElement) {
-        canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius + freaquency);
-        canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius + freaquency);
-        var ctx = canvasElement.getContext('2d');
-        ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
-        var x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-        var y = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-        while (y < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
-          while (x < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = '#ffe753';
-            ctx.fill();
-            x += freaquency;
-          }
-          y += freaquency;
-          x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-        }
-        ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
-          -this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
-          this._resizeConstraint.side - radius - freaquency / 3,
-          this._resizeConstraint.side - radius - freaquency / 3);
-        return canvasElement;
-      };
-
       this._element.insertBefore(this._frame, this._element.lastChild);
     }.bind(this);
 
@@ -187,7 +187,7 @@
           this._container.height / 2 - this._resizeConstraint.side / 2 - this._ctx.lineWidth);
       this._ctx.closePath();
       this._ctx.fill('evenodd');*/
-      this._createFrame(3, 15, this._frame);
+      this._drawDotted(3, 15, this._frame);
       this._ctx.font = '20px Tahoma';
       this._ctx.fillStyle = 'white';
       this._ctx.textAlign = 'center';
