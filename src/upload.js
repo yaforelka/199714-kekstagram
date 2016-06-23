@@ -123,8 +123,13 @@
       buttonSubmit.removeAttribute('disabled', 'disabled');
       buttonSubmit.removeAttribute('style');
     }
-    if (evt.target.tagName === 'INPUT') {
+    if (evt.target === fromLeft || evt.target === fromTop) {
       currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
+    } else if (evt.target === sizeSide) {
+      var currentValues = currentResizer.getConstraint();
+      var newLeft = +fromLeft.value + (currentValues.side - +sizeSide.value) / 2;
+      var newTop = +fromTop.value + (currentValues.side - +sizeSide.value) / 2;
+      currentResizer.setConstraint(newLeft, newTop, +sizeSide.value);
     }
   };
 
