@@ -1,13 +1,11 @@
-/* global Resizer: true */
-
 /**
  * @fileoverview
  * @author Igor Alexeenko (o0)
  */
 
 'use strict';
-
 (function() {
+  var Resizer = require('./resizer');
   /** @enum {string} */
   var FileType = {
     'GIF': '',
@@ -15,6 +13,8 @@
     'PNG': '',
     'SVG+XML': ''
   };
+
+  var utils = require('./utils');
 
   /** @enum {number} */
   var Action = {
@@ -83,28 +83,14 @@
   fromLeft.min = 0;
   fromTop.min = 0;
   sizeSide.min = 0;
+
   function resizeFormIsValid() {
     var originalWidth = currentResizer._image.naturalWidth;
     var originalHeight = currentResizer._image.naturalHeight;
+    utils.setLeftConstraint(fromLeft, sizeSide.value, originalWidth, fromLeft);
+    utils.setTopConstraint(fromTop, sizeSide.value, originalHeight, fromTop);
+    utils.setSideConstraint(sizeSide, fromLeft.value, fromTop.value, originalWidth, originalHeight, sizeSide);
 
-    var setSideConstraint = function(sideField, leftField, topField) {
-      sideField = Math.min(originalWidth - leftField, originalHeight - topField);
-      sizeSide.max = sideField >= 0 ? sideField : 0;
-    };
-
-    var setLeftConstraint = function(leftField, side) {
-      leftField = originalWidth - side;
-      fromLeft.max = leftField >= 0 ? leftField : 0;
-    };
-
-    var setTopConstraint = function(topField, side) {
-      topField = originalHeight - side;
-      fromTop.max = topField >= 0 ? topField : 0;
-    };
-
-    setLeftConstraint(fromLeft, sizeSide.value);
-    setTopConstraint(fromTop, sizeSide.value);
-    setSideConstraint(sizeSide, fromLeft.value, fromTop.value);
     return (+fromLeft.value + +sizeSide.value <= originalWidth)
     && (+fromTop.value + +sizeSide.value <= originalHeight) && (+fromLeft.value >= 0)
     && (+fromTop.value >= 0) && (+sizeSide.value >= 0);
@@ -136,8 +122,13 @@
       buttonSubmit.removeAttribute('disabled', 'disabled');
       buttonSubmit.removeAttribute('style');
     }
-    if (evt.target.tagName === 'INPUT') {
+    if (evt.target === fromLeft || evt.target === fromTop) {
       currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
+    } else if (evt.target === sizeSide) {
+      var currentValues = currentResizer.getConstraint();
+      var newLeft = +fromLeft.value + (currentValues.side - +sizeSide.value) / 2;
+      var newTop = +fromTop.value + (currentValues.side - +sizeSide.value) / 2;
+      currentResizer.setConstraint(newLeft, newTop, +sizeSide.value);
     }
   };
 
@@ -258,24 +249,7 @@
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-
   var inputElements = document.querySelectorAll('.upload-filter-controls input');
-  var setCookie = function() {
-    for (var i = 0; i < inputElements.length; i++) {
-      if (inputElements[i].checked) {
-        var userFilter = inputElements[i];
-      }
-    }
-    var birthDate = new Date();
-    birthDate.setMonth(9);
-    birthDate.setDate(10);
-    var lifeTime = (Date.now() - birthDate) / 24 / 60 / 60 / 1000;
-    if (lifeTime < 0) {
-      lifeTime = lifeTime + 365;
-    }
-    browserCookies.set('filter', userFilter.value, {expires: lifeTime});
-  };
-
   var _onSubmit = function(evt) {
     evt.preventDefault();
     if (evt.target === resizeForm) {
@@ -283,7 +257,7 @@
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
     } else if (evt.target === filterForm) {
-      setCookie();
+      utils.setCookie(inputElements);
       cleanupResizer();
       updateBackground();
 
@@ -294,18 +268,7 @@
 
   resizeForm.addEventListener('submit', _onSubmit);
 
-  var browserCookies = require('browser-cookies');
-  var filter = browserCookies.get('filter');
-  var getCookie = function() {
-    if (filter === null) {
-      filterImage.className = 'filter-image-preview ' + filterMap['none'];
-      document.querySelector('#upload-filter-none').setAttribute('checked', 'checked');
-    } else {
-      filterImage.className = 'filter-image-preview ' + filterMap[filter];
-      document.querySelector('#upload-filter-' + filter).setAttribute('checked', 'checked');
-    }
-  };
-  getCookie();
+  utils.getCookie(filterImage, filterMap);
   /**
    * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
