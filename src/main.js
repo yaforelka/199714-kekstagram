@@ -1,7 +1,5 @@
 'use strict';
 
-
-require('./resizer');
 require('./upload');
 var filter = require('./filter/filter');
 var FilterType = require('./filter/filter-type');
