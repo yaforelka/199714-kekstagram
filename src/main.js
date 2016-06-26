@@ -6,22 +6,23 @@ var FilterType = require('./filter/filter-type');
 var Picture = require('./picture/picture');
 var load = require('./load');
 var utils = require('./utils');
+var gallery = require('./gallery');
 
-
-var filtersContainer = document.querySelector('.filters');
-utils.setElementHidden(filtersContainer, true);
-
-var footerElement = document.querySelector('footer');
 var PAGE_SIZE = 12;
 var SCROLL_TIMEOUT = 100;
 var DEFAULT_FILTER = FilterType.ALL;
 var PICTURES_LOAD_URL = '//o0.github.io/assets/json/pictures.json';
+
+var filtersContainer = document.querySelector('.filters');
+var footerElement = document.querySelector('footer');
 var pictureContainer = document.querySelector('.pictures');
 
 var pictures = [];
 var filteredPictures = [];
 var pageNumber = 0;
 var renderedPictures = [];
+
+utils.setElementHidden(filtersContainer, true);
 
 var renderPictures = function(picturesList, page) {
   var from = page * PAGE_SIZE;
@@ -55,6 +56,7 @@ var renderNextPages = function(reset) {
 var setFilterEnabled = function(filterType) {
   pictureContainer.classList.remove('pictures-not-found');
   filteredPictures = filter(pictures, filterType);
+  gallery.savePictures(filteredPictures);
   if (filteredPictures.length === 0) {
     pictureContainer.classList.add('pictures-not-found');
   }

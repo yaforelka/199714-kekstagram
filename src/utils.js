@@ -1,18 +1,21 @@
 'use strict';
 
+var filter = require('./filter/filter');
+var browserCookies = require('browser-cookies');
 
 var HIDDEN_CLASSNAME = 'hidden';
-
 var DISTANCE_TO_FOOTER = 190;
 
-var browserCookies = require('browser-cookies');
-var currentFilter = browserCookies.get('filter');
+var KeyCode = {
+  ENTER: 13,
+  ESC: 27,
+  SPACE: 32
+};
 
+var currentFilter = browserCookies.get('filter');
 var labels = document.querySelectorAll('.filters-item');
 var filtersContainer = document.querySelector('.filters');
 var inputs = filtersContainer['filter'];
-var filter = require('./filter/filter');
-
 
 module.exports = {
   elementIsAtTheBottom: function(element) {
@@ -26,6 +29,14 @@ module.exports = {
 
   setElementHidden: function(element, hidden) {
     element.classList.toggle(HIDDEN_CLASSNAME, hidden);
+  },
+
+  isActivationEvent: function(evt) {
+    return [KeyCode.ENTER, KeyCode.SPACE].indexOf(evt.keyCode) > -1;
+  },
+
+  isDeactivationEvent: function(evt) {
+    return evt.keyCode === KeyCode.ESC;
   },
 
   setSideConstraint: function(sideField, leftField, topField, width, height, input) {
