@@ -2,7 +2,7 @@
 'use strict';
 
 var getPictureElement = require('./get-picture-element');
-var gallery = require('../gallery');
+var showGallery = require('../gallery');
 var utils = require('../utils');
 
 var Picture = function(data, container) {
@@ -11,7 +11,8 @@ var Picture = function(data, container) {
 
   this.onPictureClick = function(evt) {
     if (evt.target.tagName === 'IMG') {
-      gallery.showGallery(data);
+      evt.preventDefault();
+      showGallery(data);
     }
   };
 
@@ -19,7 +20,7 @@ var Picture = function(data, container) {
     if (utils.isActivationEvent(evt)) {
       if (evt.target.tagName === 'IMG') {
         evt.preventDefault();
-        gallery.showGallery(data);
+        showGallery(data);
       }
     }
   };

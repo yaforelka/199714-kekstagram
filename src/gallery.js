@@ -72,4 +72,14 @@ var Gallery = function() {
   };
 };
 
-module.exports = new Gallery();
+var photoGallery = new Gallery();
+
+var saveOrShow = function(param) {
+  if (Array.isArray(param)) {
+    photoGallery.savePictures(param);
+  } else {
+    photoGallery.showGallery(param);
+  }
+};
+
+module.exports = saveOrShow;

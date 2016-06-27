@@ -6,7 +6,7 @@ var FilterType = require('./filter/filter-type');
 var Picture = require('./picture/picture');
 var load = require('./load');
 var utils = require('./utils');
-var gallery = require('./gallery');
+var savePhotos = require('./gallery');
 
 var PAGE_SIZE = 12;
 var SCROLL_TIMEOUT = 100;
@@ -56,7 +56,7 @@ var renderNextPages = function(reset) {
 var setFilterEnabled = function(filterType) {
   pictureContainer.classList.remove('pictures-not-found');
   filteredPictures = filter(pictures, filterType);
-  gallery.savePictures(filteredPictures);
+  savePhotos(filteredPictures);
   if (filteredPictures.length === 0) {
     pictureContainer.classList.add('pictures-not-found');
   }
