@@ -17,7 +17,6 @@ var Gallery = function() {
   this.savePictures = function(pictures) {
     if (pictures !== galleryPictures) {
       galleryPictures = [];
-
       galleryPictures = pictures;
 
       pictures.forEach(function(pic) {
@@ -27,12 +26,12 @@ var Gallery = function() {
     }
   };
 
-  var _onCloseClickHandler = function() {
+  this._onCloseClickHandler = function() {
     self.hideGallery();
   };
 
 
-  var _onDocumentKeyDown = function(evt) {
+  this._onDocumentKeyDown = function(evt) {
     if (utils.isDeactivationEvent(evt)) {
       evt.preventDefault();
       self.hideGallery();
@@ -40,34 +39,34 @@ var Gallery = function() {
   };
 
 
-  var setActivePicture = function(actPicture) {
+  this.setActivePicture = function(actPicture) {
     preview.src = galleryPictures[actPicture].url;
     likes.textContent = galleryPictures[actPicture].likes;
     comments.textContent = galleryPictures[actPicture].comments;
   };
 
-  var _onPhotoClick = function() {
+  this._onPhotoClick = function() {
     self.activePicture += 1;
     if (self.activePicture === galleryPictures.length) {
       self.activePicture = 0;
     }
-    setActivePicture(self.activePicture);
+    self.setActivePicture(self.activePicture);
   };
 
   this.showGallery = function(picture) {
-    this.activePicture = galleryPictures.indexOf(picture);
-    setActivePicture(this.activePicture);
+    self.activePicture = galleryPictures.indexOf(picture);
+    self.setActivePicture(self.activePicture);
     self.element.classList.remove('invisible');
-    preview.addEventListener('click', _onPhotoClick);
-    document.addEventListener('keydown', _onDocumentKeyDown);
-    closeElement.addEventListener('click', _onCloseClickHandler);
+    preview.addEventListener('click', self._onPhotoClick);
+    document.addEventListener('keydown', self._onDocumentKeyDown);
+    closeElement.addEventListener('click', self._onCloseClickHandler);
   };
 
   this.hideGallery = function() {
     this.element.classList.add('invisible');
-    preview.removeEventListener('click', this._onPhotoClick);
-    document.removeEventListener('keydown', this._onDocumentKeyDown);
-    closeElement.removeEventListener('click', this._onCloseClickHandler);
+    preview.removeEventListener('click', self._onPhotoClick);
+    document.removeEventListener('keydown', self._onDocumentKeyDown);
+    closeElement.removeEventListener('click', self._onCloseClickHandler);
   };
 };
 
