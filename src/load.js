@@ -3,7 +3,7 @@
 var PICTURES_LOAD_TIMEOUT = 5000;
 var pictureContainer = document.querySelector('.pictures');
 
-var load = function(url, callback) {
+module.exports = function(url, callback) {
   pictureContainer.classList.add('pictures-loading');
   var xhr = new XMLHttpRequest();
 
@@ -30,5 +30,3 @@ var load = function(url, callback) {
   xhr.open('GET', url);
   xhr.send();
 };
-
-module.exports = load;
