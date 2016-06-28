@@ -7,7 +7,6 @@ var Picture = require('./picture/picture');
 var load = require('./load');
 var utils = require('./utils');
 var gallery = require('./gallery');
-console.log(gallery);
 
 var PAGE_SIZE = 12;
 var SCROLL_TIMEOUT = 100;
