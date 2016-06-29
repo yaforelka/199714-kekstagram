@@ -5,14 +5,14 @@ var getPictureElement = require('./get-picture-element');
 var gallery = require('../gallery');
 var utils = require('../utils');
 
-var Picture = function(data, container) {
+var Photo = function(data, container) {
   this.data = data;
   this.element = getPictureElement(this.data, container);
-
+  var self = this;
   this.onPictureClick = function(evt) {
     if (evt.target.tagName === 'IMG') {
       evt.preventDefault();
-      gallery.showGallery(data);
+      gallery.showGallery(self.data);
     }
   };
 
@@ -20,7 +20,7 @@ var Picture = function(data, container) {
     if (utils.isActivationEvent(evt)) {
       if (evt.target.tagName === 'IMG') {
         evt.preventDefault();
-        gallery.showGallery(data);
+        gallery.showGallery(self.data);
       }
     }
   };
@@ -36,4 +36,4 @@ var Picture = function(data, container) {
   container.appendChild(this.element);
 };
 
-module.exports = Picture;
+module.exports = Photo;
