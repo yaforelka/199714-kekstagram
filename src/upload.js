@@ -249,7 +249,6 @@
    * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
-  var inputElements = document.querySelectorAll('.upload-filter-controls input');
   var _onSubmit = function(evt) {
     evt.preventDefault();
     if (evt.target === resizeForm) {
@@ -257,7 +256,7 @@
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
     } else if (evt.target === filterForm) {
-      utils.setCookie(inputElements);
+      utils.setCookie();
       cleanupResizer();
       updateBackground();
 
