@@ -2,7 +2,6 @@
 
 require('./upload');
 var filter = require('./filter/filter');
-var FilterType = require('./filter/filter-type');
 var Picture = require('./picture/picture');
 var load = require('./load');
 var utils = require('./utils');
@@ -10,7 +9,7 @@ var gallery = require('./gallery');
 
 var PAGE_SIZE = 12;
 var SCROLL_TIMEOUT = 100;
-var DEFAULT_FILTER = FilterType.ALL;
+var DEFAULT_FILTER = utils.setFilter();
 var PICTURES_LOAD_URL = '//o0.github.io/assets/json/pictures.json';
 
 var filtersContainer = document.querySelector('.filters');
@@ -69,6 +68,7 @@ var setFiltrationEnabled = function() {
     var target = evt.target;
     while (target !== filtersContainer) {
       if (target.tagName === 'LABEL') {
+        localStorage.setItem('checked filter', target.htmlFor);
         setFilterEnabled(target.htmlFor);
         return;
       }

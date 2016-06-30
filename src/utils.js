@@ -2,6 +2,7 @@
 
 var filter = require('./filter/filter');
 var browserCookies = require('browser-cookies');
+var FilterType = require('./filter/filter-type');
 
 var HIDDEN_CLASSNAME = 'hidden';
 var DISTANCE_TO_FOOTER = 190;
@@ -14,8 +15,10 @@ var KeyCode = {
 
 var currentFilter = browserCookies.get('filter');
 var labels = document.querySelectorAll('.filters-item');
+var inputElements = document.querySelectorAll('.upload-filter-controls input');
 var filtersContainer = document.querySelector('.filters');
-var inputs = filtersContainer['filter'];
+var filterInputs = filtersContainer['filter'];
+var defaultFilter = localStorage.getItem('checked filter');
 
 module.exports = {
   elementIsAtTheBottom: function(element) {
@@ -62,12 +65,10 @@ module.exports = {
     };
   },
 
-  setCookie: function(element) {
-    for (var i = 0; i < element.length; i++) {
-      if (element[i].checked) {
-        var userFilter = element[i];
-      }
-    }
+  setCookie: function() {
+    var userFilter = [].filter.call(inputElements, function(item) {
+      return item.checked;
+    })[0].value;
     var birthDate = new Date();
     birthDate.setMonth(9);
     birthDate.setDate(10);
@@ -75,7 +76,7 @@ module.exports = {
     if (lifeTime < 0) {
       lifeTime = lifeTime + 365;
     }
-    browserCookies.set('filter', userFilter.value, {expires: lifeTime});
+    browserCookies.set('filter', userFilter, {expires: lifeTime});
   },
 
   getCookie: function(imgElement, map) {
@@ -97,10 +98,23 @@ module.exports = {
     sups[0].innerHTML = '(' + filter(picNumber, 'filter-popular').length + ')';
     sups[1].innerHTML = '(' + filter(picNumber, 'filter-new').length + ')';
     sups[2].innerHTML = '(' + filter(picNumber, 'filter-discussed').length + ')';
-    for (var i = 0; i < inputs.length; i++) {
+    for (var i = 0; i < filterInputs.length; i++) {
       if (sups[i].innerHTML === '(0)') {
-        inputs[i].setAttribute('disabled', 'disabled');
+        filterInputs[i].setAttribute('disabled', 'disabled');
       }
     }
+  },
+
+  setFilter: function() {
+    if (defaultFilter === null) {
+      defaultFilter = FilterType.ALL;
+    } else {
+      [].filter.call(filterInputs, function(item) {
+        if (item.id === defaultFilter) {
+          item.setAttribute('checked', 'checked');
+        }
+      });
+    }
+    return defaultFilter;
   }
 };
