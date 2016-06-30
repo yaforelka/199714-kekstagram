@@ -98,11 +98,11 @@ module.exports = {
     sups[0].innerHTML = '(' + filter(picNumber, 'filter-popular').length + ')';
     sups[1].innerHTML = '(' + filter(picNumber, 'filter-new').length + ')';
     sups[2].innerHTML = '(' + filter(picNumber, 'filter-discussed').length + ')';
-    for (var i = 0; i < filterInputs.length; i++) {
+    /*for (var i = 0; i < filterInputs.length; i++) {
       if (sups[i].innerHTML === '(0)') {
         filterInputs[i].setAttribute('disabled', 'disabled');
       }
-    }
+    }*/
   },
 
   setFilter: function() {
