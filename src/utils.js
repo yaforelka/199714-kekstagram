@@ -114,5 +114,11 @@ module.exports = {
       });
     }
     return defaultFilter;
+  },
+
+  inherit: function(Parent, Child) {
+    var JustConstructor = function() {};
+    JustConstructor.prototype = Parent.prototype;
+    Child.prototype = new JustConstructor();
   }
 };

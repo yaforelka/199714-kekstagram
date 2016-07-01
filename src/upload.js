@@ -6,6 +6,7 @@
 'use strict';
 (function() {
   var Resizer = require('./resizer');
+
   /** @enum {string} */
   var FileType = {
     'GIF': '',
@@ -24,8 +25,6 @@
   };
 
   /**
-   * Регулярное выражение, проверяющее тип загружаемого файла. Составляется
-   * из ключей FileType.
    * @type {RegExp}
    */
   var fileRegExp = new RegExp('^image/(' + Object.keys(FileType).join('|').replace('\+', '\\+') + ')$', 'i');
@@ -40,7 +39,6 @@
   };
 
   /**
-   * Объект, который занимается кадрированием изображения.
    * @type {Resizer}
    */
   var currentResizer;
@@ -72,7 +70,6 @@
   }
 
   /**
-   * Проверяет, валидны ли данные, в форме кадрирования.
    * @return {boolean}
    */
 
@@ -97,7 +94,6 @@
   }
 
   /**
-   * Форма загрузки изображения.
    * @type {HTMLFormElement}
    */
   var uploadForm = document.forms['upload-select-image'];
@@ -137,7 +133,6 @@
   window.addEventListener('resizerchange', _onInput);
 
   /**
-   * Форма добавления фильтра.
    * @type {HTMLFormElement}
    */
   var filterForm = document.forms['upload-filter'];
@@ -182,18 +177,12 @@
   }
 
   /**
-   * Обработчик изменения изображения в форме загрузки. Если загруженный
-   * файл является изображением, считывается исходник картинки, создается
-   * Resizer с загруженной картинкой, добавляется в форму кадрирования
-   * и показывается форма кадрирования.
    * @param {Event} evt
    */
 
   var _onChange = function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
-       // Проверка типа загружаемого файла, тип должен быть изображением
-       // одного из форматов: JPEG, PNG, GIF или SVG.
       if (fileRegExp.test(element.files[0].type)) {
         var fileReader = new FileReader();
 
@@ -214,8 +203,6 @@
         fileReader.addEventListener('load', _onLoad);
         fileReader.readAsDataURL(element.files[0]);
       } else {
-         // Показ сообщения об ошибке, если загружаемый файл, не является
-         // поддерживаемым изображением.
         showMessage(Action.ERROR);
       }
     }
@@ -238,15 +225,11 @@
   uploadForm.addEventListener('change', _onChange);
 
   /**
-   * Обработка сброса формы кадрирования. Возвращает в начальное состояние
-   * и обновляет фон.
    * @param {Event} evt
    */
   resizeForm.addEventListener('reset', _onReset);
 
   /**
-   * Обработка отправки формы кадрирования. Если форма валидна, экспортирует
-   * кропнутое изображение в форму добавления фильтра и показывает ее.
    * @param {Event} evt
    */
   var _onSubmit = function(evt) {
@@ -269,30 +252,18 @@
 
   utils.getCookie(filterImage, filterMap);
   /**
-   * Сброс формы фильтра. Показывает форму кадрирования.
    * @param {Event} evt
    */
   filterForm.addEventListener('reset', _onReset);
   /**
-   * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
-   * записав сохраненный фильтр в cookie.
    * @param {Event} evt
    */
   filterForm.addEventListener('submit', _onSubmit);
-
-  /**
-   * Обработчик изменения фильтра. Добавляет класс из filterMap соответствующий
-   * выбранному значению в форме.
-   */
 
   var _onChangeFilter = function() {
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
-
-   // Класс перезаписывается, а не обновляется через classList потому что нужно
-   // убрать предыдущий примененный класс. Для этого нужно или запоминать его
-   // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
   };
   filterForm.addEventListener('change', _onChangeFilter);
