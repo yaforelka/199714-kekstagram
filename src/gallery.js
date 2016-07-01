@@ -12,6 +12,7 @@ var Gallery = function() {
   var preview = this.element.querySelector('.gallery-overlay-image');
 
   var galleryPictures = [];
+  var currentSrc;
   this.activePicture = 0;
 
   this.savePictures = function(pictures) {
@@ -40,9 +41,15 @@ var Gallery = function() {
 
 
   this.setActivePicture = function(actPicture) {
-    preview.src = galleryPictures[actPicture].url;
-    likes.textContent = galleryPictures[actPicture].likes;
-    comments.textContent = galleryPictures[actPicture].comments;
+    galleryPictures.filter(function(item, i) {
+      if (item.url === actPicture) {
+        self.activePicture = i;
+        preview.src = actPicture;
+        likes.textContent = item.likes;
+        comments.textContent = item.comments;
+      }
+      return self.activePicture;
+    });
   };
 
   this._onPhotoClick = function() {
@@ -50,12 +57,12 @@ var Gallery = function() {
     if (self.activePicture === galleryPictures.length) {
       self.activePicture = 0;
     }
-    self.setActivePicture(self.activePicture);
+    currentSrc = galleryPictures[self.activePicture].url;
+    window.location.hash = '#photo/' + currentSrc;
   };
 
   this.showGallery = function(picture) {
-    self.activePicture = galleryPictures.indexOf(picture);
-    self.setActivePicture(self.activePicture);
+    self.setActivePicture(picture);
     self.element.classList.remove('invisible');
     preview.addEventListener('click', self._onPhotoClick);
     document.addEventListener('keydown', self._onDocumentKeyDown);
@@ -64,15 +71,33 @@ var Gallery = function() {
 
   this.hideGallery = function() {
     this.element.classList.add('invisible');
+    location.hash = '';
     preview.removeEventListener('click', self._onPhotoClick);
     document.removeEventListener('keydown', self._onDocumentKeyDown);
     closeElement.removeEventListener('click', self._onCloseClickHandler);
   };
+
+  this._onHashChange = function() {
+    var hash = window.location.hash;
+    var getPhotoRegExp = /#photo\/(\S+)/.exec(hash);
+    if (getPhotoRegExp) {
+      if (galleryPictures.some(function(item) {
+        return item.url === getPhotoRegExp[1];
+      })) {
+        self.showGallery(getPhotoRegExp[1]);
+      } else {
+        self.hideGallery();
+      }
+    } else {
+      self.hideGallery();
+    }
+  };
+  window.addEventListener('hashchange', self._onHashChange);
 };
 
 var photoGallery = new Gallery();
 
 module.exports = {
-  showGallery: photoGallery.showGallery,
+  showGallery: photoGallery._onHashChange,
   savePictures: photoGallery.savePictures
 };
