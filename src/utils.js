@@ -19,6 +19,7 @@ var inputElements = document.querySelectorAll('.upload-filter-controls input');
 var filtersContainer = document.querySelector('.filters');
 var filterInputs = filtersContainer['filter'];
 var defaultFilter = localStorage.getItem('checked filter');
+var amount;
 
 module.exports = {
   elementIsAtTheBottom: function(element) {
@@ -90,19 +91,16 @@ module.exports = {
   },
 
   createSup: function(picNumber) {
-    labels.forEach(function(label) {
+    labels.forEach(function(label, i, array) {
       var index = document.createElement('sup');
-      label.appendChild(index);
-    });
-    var sups = document.querySelectorAll('sup');
-    sups[0].innerHTML = '(' + filter(picNumber, 'filter-popular').length + ')';
-    sups[1].innerHTML = '(' + filter(picNumber, 'filter-new').length + ')';
-    sups[2].innerHTML = '(' + filter(picNumber, 'filter-discussed').length + ')';
-    /*for (var i = 0; i < filterInputs.length; i++) {
-      if (sups[i].innerHTML === '(0)') {
+      index.id = array[i].getAttribute('for');
+      amount = filter(picNumber, index.id).length;
+      index.innerHTML = '(' + amount + ')';
+      if (!amount) {
         filterInputs[i].setAttribute('disabled', 'disabled');
       }
-    }*/
+      label.appendChild(index);
+    });
   },
 
   setFilter: function() {

@@ -2,9 +2,6 @@
 
 var FilterType = require('./filter-type');
 
-var filtersContainer = document.querySelector('.filters');
-var filterInputs = filtersContainer['filter'];
-
 var filter = function(pictures, filterType) {
   var picturesToFilter = pictures.slice(0);
 
@@ -13,9 +10,6 @@ var filter = function(pictures, filterType) {
       picturesToFilter = picturesToFilter.map(function(picture) {
         return picture;
       });
-      if (picturesToFilter.length === 0) {
-        filterInputs[0].setAttribute('disabled', 'disabled');
-      }
       break;
 
     case FilterType.DATE:
@@ -26,18 +20,12 @@ var filter = function(pictures, filterType) {
       picturesToFilter = filteredPhoto.sort(function(a, b) {
         return Date.parse(b.date) - Date.parse(a.date);
       });
-      if (picturesToFilter.length === 0) {
-        filterInputs[1].setAttribute('disabled', 'disabled');
-      }
       break;
 
     case FilterType.COMMENTS:
       picturesToFilter = picturesToFilter.sort(function(a, b) {
         return b.comments - a.comments;
       });
-      if (picturesToFilter.length === 0) {
-        filterInputs[2].setAttribute('disabled', 'disabled');
-      }
       break;
   }
   return picturesToFilter;
