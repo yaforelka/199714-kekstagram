@@ -24,6 +24,12 @@
     CUSTOM: 2
   };
 
+  var currentValues;
+  var newLeft;
+  var newTop;
+  var fieldset = document.querySelector('.upload-resize-controls');
+  var inputs = fieldset.getElementsByTagName('INPUT');
+
   /**
    * @type {RegExp}
    */
@@ -44,9 +50,32 @@
   var currentResizer;
 
   /**
-   * Удаляет текущий объект {@link Resizer}, чтобы создать новый с другим
-   * изображением.
+   * @type {HTMLFormElement}
    */
+  var filterForm = document.forms['upload-filter'];
+
+  /**
+   * @type {HTMLImageElement}
+   */
+  var filterImage = filterForm.querySelector('.filter-image-preview');
+
+  /**
+   * @type {HTMLElement}
+   */
+  var uploadMessage = document.querySelector('.upload-message');
+
+  var resizeForm = document.forms['upload-resize'];
+
+  var fromLeft = resizeForm.querySelector('#resize-x');
+  var fromTop = resizeForm.querySelector('#resize-y');
+  var sizeSide = resizeForm.querySelector('#resize-size');
+  var buttonSubmit = resizeForm.querySelector('#resize-fwd');
+
+  /**
+   * @type {HTMLFormElement}
+   */
+  var uploadForm = document.forms['upload-select-image'];
+
   function cleanupResizer() {
     if (currentResizer) {
       currentResizer.remove();
@@ -54,9 +83,6 @@
     }
   }
 
-  /**
-   * Ставит одну из трех случайных картинок на фон формы загрузки.
-   */
   function updateBackground() {
     var images = [
       'img/logo-background-1.jpg',
@@ -69,40 +95,24 @@
     backgroundElement.style.backgroundImage = 'url(' + images[randomImageNumber] + ')';
   }
 
-  /**
-   * @return {boolean}
-   */
-
-  var fromLeft = document.querySelector('#resize-x');
-  var fromTop = document.querySelector('#resize-y');
-  var sizeSide = document.querySelector('#resize-size');
-  var buttonSubmit = document.querySelector('#resize-fwd');
   fromLeft.min = 0;
   fromTop.min = 0;
   sizeSide.min = 0;
-
+  /**
+   * @return {boolean}
+   */
   function resizeFormIsValid() {
-    var originalWidth = currentResizer._image.naturalWidth;
-    var originalHeight = currentResizer._image.naturalHeight;
-    utils.setLeftConstraint(fromLeft, sizeSide.value, originalWidth, fromLeft);
-    utils.setTopConstraint(fromTop, sizeSide.value, originalHeight, fromTop);
-    utils.setSideConstraint(sizeSide, fromLeft.value, fromTop.value, originalWidth, originalHeight, sizeSide);
+    fromLeft.max = utils.setLeftConstraint(fromLeft, sizeSide.value, currentResizer._image.naturalWidth);
+    fromTop.max = utils.setTopConstraint(fromTop, sizeSide.value, currentResizer._image.naturalHeight);
+    sizeSide.max = utils.setSideConstraint(sizeSide, fromLeft.value, fromTop.value,
+      currentResizer._image.naturalWidth, currentResizer._image.naturalHeight);
 
-    return (+fromLeft.value + +sizeSide.value <= originalWidth)
-    && (+fromTop.value + +sizeSide.value <= originalHeight) && (+fromLeft.value >= 0)
-    && (+fromTop.value >= 0) && (+sizeSide.value >= 0);
+    return [].every.call(inputs, function(item) {
+      return item.checkValidity();
+    });
   }
 
-  /**
-   * @type {HTMLFormElement}
-   */
-  var uploadForm = document.forms['upload-select-image'];
 
-  /**
-   * Форма кадрирования изображения.
-   * @type {HTMLFormElement}
-   */
-  var resizeForm = document.forms['upload-resize'];
   var _onResizerChange = function() {
     var defaultValues = currentResizer.getConstraint();
     fromLeft.value = defaultValues.x;
@@ -121,31 +131,17 @@
     if (evt.target === fromLeft || evt.target === fromTop) {
       currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
     } else if (evt.target === sizeSide) {
-      var currentValues = currentResizer.getConstraint();
-      var newLeft = +fromLeft.value + (currentValues.side - +sizeSide.value) / 2;
-      var newTop = +fromTop.value + (currentValues.side - +sizeSide.value) / 2;
-      currentResizer.setConstraint(newLeft, newTop, +sizeSide.value);
+      currentValues = currentResizer.getConstraint();
+      newLeft = +fromLeft.value + (currentValues.side - +sizeSide.value) / 2;
+      newTop = +fromTop.value + (currentValues.side - +sizeSide.value) / 2;
+      if (Math.abs(newLeft - +fromLeft.value) > 0.5 && Math.abs(newTop - +fromTop.value) > 0.5) {
+        currentResizer.setConstraint(newLeft, newTop, +sizeSide.value);
+      }
     }
   };
 
-  resizeForm.addEventListener('input', _onInput);
   window.addEventListener('resizerchange', _onResizerChange);
   window.addEventListener('resizerchange', _onInput);
-
-  /**
-   * @type {HTMLFormElement}
-   */
-  var filterForm = document.forms['upload-filter'];
-
-  /**
-   * @type {HTMLImageElement}
-   */
-  var filterImage = filterForm.querySelector('.filter-image-preview');
-
-  /**
-   * @type {HTMLElement}
-   */
-  var uploadMessage = document.querySelector('.upload-message');
 
   /**
    * @param {Action} action
@@ -179,7 +175,6 @@
   /**
    * @param {Event} evt
    */
-
   var _onChange = function(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
@@ -196,7 +191,9 @@
 
           uploadForm.classList.add('invisible');
           resizeForm.classList.remove('invisible');
-
+          resizeForm.addEventListener('reset', _onReset);
+          resizeForm.addEventListener('input', _onInput);
+          resizeForm.addEventListener('submit', _onSubmit);
           hideMessage();
         };
 
@@ -215,6 +212,7 @@
       updateBackground();
 
       resizeForm.classList.add('invisible');
+      utils.getCookie(filterImage, filterMap);
       uploadForm.classList.remove('invisible');
     } else if (evt.target === filterForm) {
       filterForm.classList.add('invisible');
@@ -227,38 +225,29 @@
   /**
    * @param {Event} evt
    */
-  resizeForm.addEventListener('reset', _onReset);
-
-  /**
-   * @param {Event} evt
-   */
   var _onSubmit = function(evt) {
     evt.preventDefault();
     if (evt.target === resizeForm) {
       filterImage.src = currentResizer.exportImage().src;
       resizeForm.classList.add('invisible');
+      filterForm.addEventListener('change', _onChangeFilter);
+      filterForm.addEventListener('reset', _onReset);
+      filterForm.addEventListener('submit', _onSubmit);
       filterForm.classList.remove('invisible');
     } else if (evt.target === filterForm) {
       utils.setCookie();
       cleanupResizer();
       updateBackground();
-
+      filterForm.removeEventListener('change', _onChangeFilter);
+      filterForm.removeEventListener('reset', _onReset);
+      filterForm.removeEventListener('submit', _onSubmit);
+      resizeForm.removeEventListener('reset', _onReset);
+      resizeForm.removeEventListener('input', _onInput);
+      resizeForm.removeEventListener('submit', _onSubmit);
       filterForm.classList.add('invisible');
       uploadForm.classList.remove('invisible');
     }
   };
-
-  resizeForm.addEventListener('submit', _onSubmit);
-
-  utils.getCookie(filterImage, filterMap);
-  /**
-   * @param {Event} evt
-   */
-  filterForm.addEventListener('reset', _onReset);
-  /**
-   * @param {Event} evt
-   */
-  filterForm.addEventListener('submit', _onSubmit);
 
   var _onChangeFilter = function() {
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
@@ -266,8 +255,6 @@
     })[0].value;
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
   };
-  filterForm.addEventListener('change', _onChangeFilter);
-
   cleanupResizer();
   updateBackground();
 })();
