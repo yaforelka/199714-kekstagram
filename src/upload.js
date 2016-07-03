@@ -27,8 +27,7 @@
   var currentValues;
   var newLeft;
   var newTop;
-  var fieldset = document.querySelector('.upload-resize-controls');
-  var inputs = fieldset.getElementsByTagName('INPUT');
+  var errorMessageDiv = document.querySelector('#resize-image-src');
 
   /**
    * @type {RegExp}
@@ -107,7 +106,7 @@
     sizeSide.max = utils.setSideConstraint(sizeSide, fromLeft.value, fromTop.value,
       currentResizer._image.naturalWidth, currentResizer._image.naturalHeight);
 
-    return [].every.call(inputs, function(item) {
+    return [fromLeft, fromTop, sizeSide].every(function(item) {
       return item.checkValidity();
     });
   }
@@ -124,9 +123,17 @@
     if (!resizeFormIsValid()) {
       buttonSubmit.setAttribute('disabled', 'disabled');
       buttonSubmit.style.background = '#505050';
+      errorMessageDiv.classList.remove('invisible');
+      [fromLeft, fromTop, sizeSide].forEach(function(item) {
+        if (!item.checkValidity()) {
+          errorMessageDiv.innerHTML = item.validationMessage;
+        }
+      });
     } else {
       buttonSubmit.removeAttribute('disabled', 'disabled');
       buttonSubmit.removeAttribute('style');
+      errorMessageDiv.classList.add('invisible');
+      errorMessageDiv.innerHTML = '';
     }
     if (evt.target === fromLeft || evt.target === fromTop) {
       currentResizer.setConstraint(+fromLeft.value, +fromTop.value, +sizeSide.value);
