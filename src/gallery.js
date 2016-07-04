@@ -1,7 +1,7 @@
 'use strict';
 
-var utils = require('./utils');
 var BaseComponent = require('./base-component');
+var utils = require('./utils');
 
 var Gallery = function() {
   this.element = document.querySelector('.gallery-overlay');
