@@ -1,6 +1,7 @@
 'use strict';
 
 var utils = require('./utils');
+var BaseComponent = require('./base-component');
 
 var Gallery = function() {
   this.element = document.querySelector('.gallery-overlay');
@@ -8,6 +9,7 @@ var Gallery = function() {
   this.likes = this.element.querySelector('.likes-count');
   this.comments = this.element.querySelector('.comments-count');
   this.preview = this.element.querySelector('.gallery-overlay-image');
+  this.body = document.getElementsByTagName('BODY');
 
   this.galleryPictures = [];
   this.picturesSrc = [];
@@ -19,9 +21,9 @@ var Gallery = function() {
   this._onCloseClickHandler = this._onCloseClickHandler.bind(this);
   this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
   this._onPhotoClick = this._onPhotoClick.bind(this);
-
   window.addEventListener('hashchange', this._onHashChange.bind(this));
 };
+utils.inherit(BaseComponent, Gallery);
 
 Gallery.prototype.savePictures = function(pictures) {
   if (pictures !== this.galleryPictures) {
@@ -47,6 +49,7 @@ Gallery.prototype._onDocumentKeyDown = function(evt) {
 };
 
 Gallery.prototype.setActivePicture = function(actPicture) {
+  console.log(actPicture);
   this.activePicture = this.picturesSrc.indexOf(actPicture);
   this.preview.src = this.galleryPictures[this.activePicture].url;
   this.likes.textContent = this.galleryPictures[this.activePicture].likes;
@@ -63,19 +66,17 @@ Gallery.prototype._onPhotoClick = function() {
 };
 
 Gallery.prototype.showGallery = function(picture) {
+  this.addEvents(this.preview, 'click', this._onPhotoClick);
+  this.addEvents(document, 'keydown', this._onDocumentKeyDown);
+  this.addEvents(this.closeElement, 'click', this._onCloseClickHandler);
   this.setActivePicture(picture);
   this.element.classList.remove('invisible');
-  this.preview.addEventListener('click', this._onPhotoClick);
-  document.addEventListener('keydown', this._onDocumentKeyDown);
-  this.closeElement.addEventListener('click', this._onCloseClickHandler);
 };
 
 Gallery.prototype.hideGallery = function() {
   this.element.classList.add('invisible');
   location.hash = '';
-  this.preview.removeEventListener('click', this._onPhotoClick);
-  document.removeEventListener('keydown', this._onDocumentKeyDown);
-  this.closeElement.removeEventListener('click', this._onCloseClickHandler);
+  BaseComponent.prototype.remove.call(this);
 };
 
 Gallery.prototype.getHashContent = function() {

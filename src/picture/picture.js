@@ -3,19 +3,23 @@
 
 var getPictureElement = require('./get-picture-element');
 var utils = require('../utils');
+var BaseComponent = require('../base-component');
 
 var Photo = function(data, container) {
   this.data = data;
-  this.element = getPictureElement(this.data, container);
+  this.element = getPictureElement(this.data);
+  this.container = container;
 
-  this.element.addEventListener('click', this.onPictureClick.bind(this));
-  this.element.addEventListener('keydown', this.onPictureKeydown.bind(this));
-  container.appendChild(this.element);
+  this.addEvents(this.element, 'click', this.onPictureClick.bind(this));
+  this.addEvents(this.element, 'keydown', this.onPictureKeydown.bind(this));
+
+  this.create(this.container, this.element);
 };
 
+utils.inherit(BaseComponent, Photo);
+
 Photo.prototype.remove = function() {
-  this.element.removeEventListener('click', this.onPictureClick.bind(this));
-  this.element.removeEventListener('keydown', this.onPictureClick.bind(this));
+  BaseComponent.prototype.remove.call(this);
   this.element.parentNode.removeChild(this.element);
 };
 
