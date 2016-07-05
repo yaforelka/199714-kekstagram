@@ -9,7 +9,7 @@ if ('content' in templateElement) {
   elementToClone = templateElement.querySelector('.picture');
 }
 
-var getPictureElement = function(data, container) {
+var getPictureElement = function(data) {
   var element = elementToClone.cloneNode(true);
   element.querySelector('.picture-comments').textContent = data.comments;
   element.querySelector('.picture-likes').textContent = data.likes;
@@ -30,7 +30,6 @@ var getPictureElement = function(data, container) {
   };
 
   elementPhoto.src = data.url;
-  container.appendChild(element);
   return element;
 };
 

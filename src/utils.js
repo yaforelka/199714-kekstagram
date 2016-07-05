@@ -43,19 +43,19 @@ module.exports = {
     return evt.keyCode === KeyCode.ESC;
   },
 
-  setSideConstraint: function(sideField, leftField, topField, width, height, input) {
+  setSideConstraint: function(sideField, leftField, topField, width, height) {
     sideField = Math.min(width - leftField, height - topField);
-    input.max = sideField >= 0 ? sideField : 0;
+    return sideField >= 0 ? sideField : 0;
   },
 
-  setLeftConstraint: function(leftField, side, width, input) {
+  setLeftConstraint: function(leftField, side, width) {
     leftField = width - side;
-    input.max = leftField >= 0 ? leftField : 0;
+    return leftField >= 0 ? leftField : 0;
   },
 
-  setTopConstraint: function(topField, side, height, input) {
+  setTopConstraint: function(topField, side, height) {
     topField = height - side;
-    input.max = topField >= 0 ? topField : 0;
+    return topField >= 0 ? topField : 0;
   },
 
 
@@ -114,5 +114,11 @@ module.exports = {
       });
     }
     return defaultFilter;
+  },
+
+  inherit: function(Parent, Child) {
+    var JustConstructor = function() {};
+    JustConstructor.prototype = Parent.prototype;
+    Child.prototype = new JustConstructor();
   }
 };

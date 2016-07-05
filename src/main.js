@@ -87,11 +87,7 @@ load(PICTURES_LOAD_URL, function(loadedPictures) {
   utils.createSup(pictures);
   setFiltrationEnabled();
   setFilterEnabled(DEFAULT_FILTER);
-  if (location.hash !== '') {
-    gallery.showGallery();
-  } else {
-    location.hash = '';
-  }
+  gallery.getHashContent();
   setScrollEnabled();
 });
 utils.setElementHidden(filtersContainer, false);

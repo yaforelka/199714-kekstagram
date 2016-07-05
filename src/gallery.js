@@ -1,103 +1,107 @@
 'use strict';
 
+var BaseComponent = require('./base-component');
 var utils = require('./utils');
 
 var Gallery = function() {
-  var self = this;
-
   this.element = document.querySelector('.gallery-overlay');
-  var closeElement = this.element.querySelector('.gallery-overlay-close');
-  var likes = this.element.querySelector('.likes-count');
-  var comments = this.element.querySelector('.comments-count');
-  var preview = this.element.querySelector('.gallery-overlay-image');
+  this.closeElement = this.element.querySelector('.gallery-overlay-close');
+  this.likes = this.element.querySelector('.likes-count');
+  this.comments = this.element.querySelector('.comments-count');
+  this.preview = this.element.querySelector('.gallery-overlay-image');
+  this.body = document.getElementsByTagName('BODY');
 
-  var galleryPictures = [];
-  var currentSrc;
+  this.galleryPictures = [];
+  this.picturesSrc = [];
   this.activePicture = 0;
 
-  this.savePictures = function(pictures) {
-    if (pictures !== galleryPictures) {
-      galleryPictures = [];
-      galleryPictures = pictures;
+  this.savePictures = this.savePictures.bind(this);
+  this.getHashContent = this.getHashContent.bind(this);
 
-      pictures.forEach(function(pic) {
-        var pictureElement = new Image();
-        pictureElement.src = pic;
-      }, this);
-    }
-  };
+  this._onCloseClickHandler = this._onCloseClickHandler.bind(this);
+  this._onDocumentKeyDown = this._onDocumentKeyDown.bind(this);
+  this._onPhotoClick = this._onPhotoClick.bind(this);
+  window.addEventListener('hashchange', this._onHashChange.bind(this));
+};
+utils.inherit(BaseComponent, Gallery);
 
-  this._onCloseClickHandler = function() {
-    self.hideGallery();
-  };
+Gallery.prototype.savePictures = function(pictures) {
+  if (pictures !== this.galleryPictures) {
+    this.galleryPictures = [];
+    this.picturesSrc = [];
+    this.galleryPictures = pictures;
 
+    pictures.forEach(function(pic) {
+      this.picturesSrc.push(pic.url);
+    }, this);
+  }
+};
 
-  this._onDocumentKeyDown = function(evt) {
-    if (utils.isDeactivationEvent(evt)) {
-      evt.preventDefault();
-      self.hideGallery();
-    }
-  };
+Gallery.prototype._onCloseClickHandler = function() {
+  this.hideGallery();
+};
 
+Gallery.prototype._onDocumentKeyDown = function(evt) {
+  if (utils.isDeactivationEvent(evt)) {
+    evt.preventDefault();
+    this.hideGallery();
+  }
+};
 
-  this.setActivePicture = function(actPicture) {
-    galleryPictures.filter(function(item, i) {
-      if (item.url === actPicture) {
-        self.activePicture = i;
-        preview.src = actPicture;
-        likes.textContent = item.likes;
-        comments.textContent = item.comments;
-      }
-      return self.activePicture;
-    });
-  };
+Gallery.prototype.setActivePicture = function(actPicture) {
+  console.log(actPicture);
+  this.activePicture = this.picturesSrc.indexOf(actPicture);
+  this.preview.src = this.galleryPictures[this.activePicture].url;
+  this.likes.textContent = this.galleryPictures[this.activePicture].likes;
+  this.comments.textContent = this.galleryPictures[this.activePicture].comments;
+};
 
-  this._onPhotoClick = function() {
-    self.activePicture += 1;
-    if (self.activePicture === galleryPictures.length) {
-      self.activePicture = 0;
-    }
-    currentSrc = galleryPictures[self.activePicture].url;
-    window.location.hash = '#photo/' + currentSrc;
-  };
+Gallery.prototype._onPhotoClick = function() {
+  this.activePicture += 1;
+  if (this.activePicture === this.galleryPictures.length) {
+    this.activePicture = 0;
+  }
+  var nextSrc = this.picturesSrc[this.activePicture];
+  window.location.hash = '#photo/' + nextSrc;
+};
 
-  this.showGallery = function(picture) {
-    self.setActivePicture(picture);
-    self.element.classList.remove('invisible');
-    preview.addEventListener('click', self._onPhotoClick);
-    document.addEventListener('keydown', self._onDocumentKeyDown);
-    closeElement.addEventListener('click', self._onCloseClickHandler);
-  };
+Gallery.prototype.showGallery = function(picture) {
+  this.addEvents(this.preview, 'click', this._onPhotoClick);
+  this.addEvents(document, 'keydown', this._onDocumentKeyDown);
+  this.addEvents(this.closeElement, 'click', this._onCloseClickHandler);
+  this.setActivePicture(picture);
+  this.element.classList.remove('invisible');
+};
 
-  this.hideGallery = function() {
-    this.element.classList.add('invisible');
-    location.hash = '';
-    preview.removeEventListener('click', self._onPhotoClick);
-    document.removeEventListener('keydown', self._onDocumentKeyDown);
-    closeElement.removeEventListener('click', self._onCloseClickHandler);
-  };
+Gallery.prototype.hideGallery = function() {
+  this.element.classList.add('invisible');
+  location.hash = '';
+  BaseComponent.prototype.remove.call(this);
+};
 
-  this._onHashChange = function() {
-    var hash = window.location.hash;
-    var getPhotoRegExp = /#photo\/(\S+)/.exec(hash);
-    if (getPhotoRegExp) {
-      if (galleryPictures.some(function(item) {
-        return item.url === getPhotoRegExp[1];
-      })) {
-        self.showGallery(getPhotoRegExp[1]);
-      } else {
-        self.hideGallery();
-      }
+Gallery.prototype.getHashContent = function() {
+  if (location.hash !== '') {
+    this._onHashChange();
+  }
+};
+
+Gallery.prototype._onHashChange = function() {
+  var hash = window.location.hash;
+  var getPhotoRegExp = /#photo\/(\S+)/.exec(hash);
+  if (getPhotoRegExp) {
+    if (this.picturesSrc.indexOf(getPhotoRegExp[1]) > -1) {
+      this.showGallery(getPhotoRegExp[1]);
     } else {
-      self.hideGallery();
+      this.hideGallery();
     }
-  };
-  window.addEventListener('hashchange', self._onHashChange);
+  } else {
+    location.hash = '';
+  }
 };
 
 var photoGallery = new Gallery();
 
 module.exports = {
-  showGallery: photoGallery._onHashChange,
+  getHashContent: photoGallery.getHashContent,
   savePictures: photoGallery.savePictures
 };
