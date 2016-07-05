@@ -20,12 +20,15 @@ var getPictureElement = function(data) {
   element.replaceChild(elementPhoto, elementImage);
 
   elementPhoto.onload = function(evt) {
+    elementPhoto.onerror = null;
     elementPhoto.setAttribute('src', evt.target.src);
     elementPhoto.setAttribute('width', '182');
     elementPhoto.setAttribute('height', '182');
   };
 
   elementPhoto.onerror = function() {
+    elementPhoto.onload = null;
+    elementPhoto = null;
     element.classList.add('picture-load-failure');
   };
 
