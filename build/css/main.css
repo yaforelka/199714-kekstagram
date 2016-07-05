@@ -249,6 +249,16 @@ body {
   border-radius: 2px;
 }
 
+#resize-image-src {
+  position: absolute;
+  font: 15px "Open Sans";
+  color: #ffe753;
+  width: 400px;
+  text-align: center;
+  left:50%;
+  transform: translate(-50%, 0);
+}
+
 .upload-filter-controls {
   position: absolute;
   bottom: 10px;
