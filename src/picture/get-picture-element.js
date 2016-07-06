@@ -14,7 +14,8 @@ var getPictureElement = function(data) {
   element.querySelector('.picture-comments').textContent = data.comments;
   element.querySelector('.picture-likes').textContent = data.likes;
 
-  var elementImage = element.querySelector('img');
+  var elementImage = new Image();
+  elementImage = element.querySelector('img');
 
   elementImage.onload = function() {
     elementImage.height = 182;
