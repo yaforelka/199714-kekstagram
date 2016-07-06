@@ -9,7 +9,6 @@ var Gallery = function() {
   this.likes = this.element.querySelector('.likes-count');
   this.comments = this.element.querySelector('.comments-count');
   this.preview = this.element.querySelector('.gallery-overlay-image');
-  this.body = document.getElementsByTagName('BODY');
 
   this.galleryPictures = [];
   this.picturesSrc = [];
@@ -49,7 +48,6 @@ Gallery.prototype._onDocumentKeyDown = function(evt) {
 };
 
 Gallery.prototype.setActivePicture = function(actPicture) {
-  console.log(actPicture);
   this.activePicture = this.picturesSrc.indexOf(actPicture);
   this.preview.src = this.galleryPictures[this.activePicture].url;
   this.likes.textContent = this.galleryPictures[this.activePicture].likes;

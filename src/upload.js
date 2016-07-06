@@ -147,9 +147,6 @@
     }
   };
 
-  window.addEventListener('resizerchange', _onResizerChange);
-  window.addEventListener('resizerchange', _onInput);
-
   /**
    * @param {Action} action
    * @param {string=} message
@@ -201,6 +198,8 @@
           resizeForm.addEventListener('reset', _onReset);
           resizeForm.addEventListener('input', _onInput);
           resizeForm.addEventListener('submit', _onSubmit);
+          window.addEventListener('resizerchange', _onResizerChange);
+          window.addEventListener('resizerchange', _onInput);
           hideMessage();
         };
 
@@ -245,6 +244,8 @@
       utils.setCookie();
       cleanupResizer();
       updateBackground();
+      window.removeEventListener('resizerchange', _onResizerChange);
+      window.removeEventListener('resizerchange', _onInput);
       filterForm.removeEventListener('change', _onChangeFilter);
       filterForm.removeEventListener('reset', _onReset);
       filterForm.removeEventListener('submit', _onSubmit);
