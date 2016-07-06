@@ -14,12 +14,13 @@ var getPictureElement = function(data) {
   element.querySelector('.picture-comments').textContent = data.comments;
   element.querySelector('.picture-likes').textContent = data.likes;
 
-  var elementImage = new Image();
-  elementImage = element.querySelector('img');
+  var elementImage = element.querySelector('img');
 
-  elementImage.onload = function() {
+  elementImage.onload = function(evt) {
+    elementImage = new Image();
     elementImage.height = 182;
     elementImage.width = 182;
+    elementImage.src = evt.target.src;
     elementImage.onerror = null;
   };
 
