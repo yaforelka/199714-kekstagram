@@ -15,24 +15,19 @@ var getPictureElement = function(data) {
   element.querySelector('.picture-likes').textContent = data.likes;
 
   var elementImage = element.querySelector('img');
-  var elementPhoto = new Image();
 
-  element.replaceChild(elementPhoto, elementImage);
-
-  elementPhoto.onload = function(evt) {
-    elementPhoto.onerror = null;
-    elementPhoto.setAttribute('src', evt.target.src);
-    elementPhoto.setAttribute('width', '182');
-    elementPhoto.setAttribute('height', '182');
+  elementImage.onload = function() {
+    elementImage.height = 182;
+    elementImage.width = 182;
+    elementImage.onerror = null;
   };
 
-  elementPhoto.onerror = function() {
-    elementPhoto.onload = null;
-    elementPhoto = null;
+  elementImage.onerror = function() {
+    elementImage.onload = null;
     element.classList.add('picture-load-failure');
   };
 
-  elementPhoto.src = data.url;
+  elementImage.src = data.url;
   return element;
 };
 
