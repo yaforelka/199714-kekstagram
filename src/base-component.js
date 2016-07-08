@@ -18,7 +18,6 @@ BaseComponent.prototype.addEvents = function(elem, type, func) {
 
   var eventArray = [elem, type, func];
   this.activeEvents.push(eventArray);
-  eventArray = null;
 };
 
 BaseComponent.prototype.removeEvents = function() {
