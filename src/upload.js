@@ -112,14 +112,14 @@
   }
 
 
-  var _onResizerChange = function() {
+  function _onResizerChange() {
     var defaultValues = currentResizer.getConstraint();
     fromLeft.value = defaultValues.x;
     fromTop.value = defaultValues.y;
     sizeSide.value = defaultValues.side;
-  };
+  }
 
-  var _onInput = function(evt) {
+  function _onInput(evt) {
     if (!resizeFormIsValid()) {
       buttonSubmit.setAttribute('disabled', 'disabled');
       buttonSubmit.style.background = '#505050';
@@ -145,7 +145,7 @@
         currentResizer.setConstraint(newLeft, newTop, +sizeSide.value);
       }
     }
-  };
+  }
 
   /**
    * @param {Action} action
@@ -179,7 +179,7 @@
   /**
    * @param {Event} evt
    */
-  var _onChange = function(evt) {
+  function _onChange(evt) {
     var element = evt.target;
     if (element.id === 'upload-file') {
       if (fileRegExp.test(element.files[0].type)) {
@@ -209,9 +209,9 @@
         showMessage(Action.ERROR);
       }
     }
-  };
+  }
 
-  var _onReset = function(evt) {
+  function _onReset(evt) {
     evt.preventDefault();
     if (evt.target === resizeForm) {
       cleanupResizer();
@@ -224,14 +224,14 @@
       filterForm.classList.add('invisible');
       resizeForm.classList.remove('invisible');
     }
-  };
+  }
 
   uploadForm.addEventListener('change', _onChange);
 
   /**
    * @param {Event} evt
    */
-  var _onSubmit = function(evt) {
+  function _onSubmit(evt) {
     evt.preventDefault();
     if (evt.target === resizeForm) {
       filterImage.src = currentResizer.exportImage().src;
@@ -255,14 +255,14 @@
       filterForm.classList.add('invisible');
       uploadForm.classList.remove('invisible');
     }
-  };
+  }
 
-  var _onChangeFilter = function() {
+  function _onChangeFilter() {
     var selectedFilter = [].filter.call(filterForm['upload-filter'], function(item) {
       return item.checked;
     })[0].value;
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
-  };
+  }
   cleanupResizer();
   updateBackground();
 })();

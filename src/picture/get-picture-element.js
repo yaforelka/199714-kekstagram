@@ -15,9 +15,9 @@ var getPictureElement = function(data) {
   element.querySelector('.picture-likes').textContent = data.likes;
 
   var elementImage = element.querySelector('img');
+  var pictureElement = new Image();
 
-  elementImage.onload = function(evt) {
-    elementImage = new Image();
+  pictureElement.onload = function(evt) {
     elementImage.height = 182;
     elementImage.width = 182;
     elementImage.src = evt.target.src;

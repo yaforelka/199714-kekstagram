@@ -58,12 +58,22 @@ module.exports = {
     return topField >= 0 ? topField : 0;
   },
 
+  throttle: function(func, ms) {
+    var isThrottled = false;
+    function wrapper() {
+      if (isThrottled) {
+        return;
+      }
 
-  throttle: function(fn, timeout) {
-    return function() {
-      clearTimeout(fn._timeoutID);
-      fn._timeoutID = setTimeout(fn, timeout);
-    };
+      func();
+      isThrottled = true;
+
+      setTimeout(function() {
+        isThrottled = false;
+      }, ms);
+    }
+
+    return wrapper;
   },
 
   setCookie: function() {

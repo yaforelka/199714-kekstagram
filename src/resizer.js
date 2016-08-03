@@ -11,37 +11,6 @@ var Resizer = function(image) {
   this._container = document.createElement('canvas');
   this._ctx = this._container.getContext('2d');
 
-  this._frame = document.createElement('canvas');
-  this._frame.style.position = 'absolute';
-  this._frame.style.left = '50%';
-  this._frame.style.top = '50%';
-  this._frame.style.transform = 'translate(-50%, -50%)';
-
-  this._drawDotted = function(radius, freaquency, canvasElement) {
-    canvasElement.setAttribute('width', this._resizeConstraint.side + 4 * radius + freaquency);
-    canvasElement.setAttribute('height', this._resizeConstraint.side + 4 * radius + freaquency);
-    var ctx = canvasElement.getContext('2d');
-    ctx.translate(this._resizeConstraint.side / 2, this._resizeConstraint.side / 2);
-    var x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-    var y = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-    while (y < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
-      while (x < this._resizeConstraint.side / 2 + 2 * radius + freaquency) {
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#ffe753';
-        ctx.fill();
-        x += freaquency;
-      }
-      y += freaquency;
-      x = -this._resizeConstraint.side / 2 + radius + freaquency / 2;
-    }
-    ctx.clearRect(-this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
-        -this._resizeConstraint.side / 2 + 2 * radius + freaquency / 2,
-        this._resizeConstraint.side - radius - freaquency / 3,
-        this._resizeConstraint.side - radius - freaquency / 3);
-    return canvasElement;
-  };
-
   this._image.onload = function() {
     this._container.width = this._image.naturalWidth;
     this._container.height = this._image.naturalHeight;
@@ -62,7 +31,6 @@ var Resizer = function(image) {
         side);
 
     this.setConstraint();
-    this._element.insertBefore(this._frame, this._element.lastChild);
   }.bind(this);
 
   this._onDragStart = this._onDragStart.bind(this);
@@ -96,11 +64,48 @@ Resizer.prototype = {
 
     var displX = -(this._resizeConstraint.x + this._resizeConstraint.side / 2);
     var displY = -(this._resizeConstraint.y + this._resizeConstraint.side / 2);
+    var x = -this._resizeConstraint.side / 2;
+    var y = -this._resizeConstraint.side / 2;
 
     this._ctx.drawImage(this._image, displX, displY);
+
+    while (x < this._resizeConstraint.side / 2) {
+      this._ctx.beginPath();
+      this._ctx.arc(x, -this._resizeConstraint.side / 2, 2, 0, 2 * Math.PI);
+      this._ctx.fillStyle = '#ffe753';
+      this._ctx.fill();
+      x += 8;
+    }
+
+    while (y < this._resizeConstraint.side / 2) {
+      this._ctx.beginPath();
+      this._ctx.arc(this._resizeConstraint.side / 2, y, 2, 0, 2 * Math.PI);
+      this._ctx.fillStyle = '#ffe753';
+      this._ctx.fill();
+      y += 8;
+    }
+
+    x = -this._resizeConstraint.side / 2;
+    y = -this._resizeConstraint.side / 2;
+
+    while (x <= this._resizeConstraint.side / 2) {
+      this._ctx.beginPath();
+      this._ctx.arc(x, this._resizeConstraint.side / 2, 2, 0, 2 * Math.PI);
+      this._ctx.fillStyle = '#ffe753';
+      this._ctx.fill();
+      x += 8;
+    }
+
+    while (y < this._resizeConstraint.side / 2) {
+      this._ctx.beginPath();
+      this._ctx.arc(-this._resizeConstraint.side / 2, y, 2, 0, 2 * Math.PI);
+      this._ctx.fillStyle = '#ffe753';
+      this._ctx.fill();
+      y += 8;
+    }
+
     this._ctx.restore();
 
-    this._drawDotted(3, 15, this._frame);
     this._ctx.font = '20px Tahoma';
     this._ctx.fillStyle = 'white';
     this._ctx.textAlign = 'center';
@@ -222,7 +227,6 @@ Resizer.prototype = {
 
   remove: function() {
     this._element.removeChild(this._container);
-    this._element.removeChild(this._frame);
     this._container.removeEventListener('mousedown', this._onDragStart);
     this._container = null;
   },
