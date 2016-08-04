@@ -20,16 +20,16 @@ var getPictureElement = function(data) {
   pictureElement.onload = function(evt) {
     elementImage.height = 182;
     elementImage.width = 182;
-    elementImage.src = evt.target.src;
-    elementImage.onerror = null;
+    elementImage.setAttribute('src', evt.target.src);
+    pictureElement.onerror = null;
   };
 
-  elementImage.onerror = function() {
-    elementImage.onload = null;
+  pictureElement.onerror = function() {
+    pictureElement.onload = null;
     element.classList.add('picture-load-failure');
   };
 
-  elementImage.src = data.url;
+  pictureElement.src = data.url;
   return element;
 };
 

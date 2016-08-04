@@ -101,7 +101,7 @@ module.exports = {
   },
 
   createSup: function(picNumber) {
-    labels.forEach(function(label, i, array) {
+    [].forEach.call(labels, function(label, i, array) {
       var index = document.createElement('sup');
       index.id = array[i].getAttribute('for');
       amount = filter(picNumber, index.id).length;
